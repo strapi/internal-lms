@@ -13,10 +13,6 @@ export default defineConfig({
   test: {
     // allows you to use stuff like describe, it, vi without importing
     globals: true,
-    // Path to your setup script that we will go into detail below
-    setupFiles: ["./tests/setup.integration.ts"],
-    // Up to you, I usually put my integration tests inside of integration
-    // folders
     include: ["./tests/*.test.ts"],
   },
 });
