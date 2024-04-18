@@ -1,13 +1,9 @@
 {
-  "include": [
+ "include": [
     "**/*.ts",
     "**/*.tsx",
-    "**/.server/**/*.ts",
-    "**/.server/**/*.tsx",
-    "**/.client/**/*.ts",
-    "**/.client/**/*.tsx",
     "remix.env.d.ts",
-
+    "types/**/*.d.ts"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
@@ -25,7 +21,11 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "@/types/*": ["./types/*"],
+      "@/server/*": ["./.server/*"],
+      "@/client/*": ["./.client/*"],
+      "@/app/*": ["./app/*"]
     },
 
     // Vite takes care of building everything, not tsc.
