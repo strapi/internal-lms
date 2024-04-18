@@ -23,7 +23,6 @@ module.exports = {
 
   // Base config
   extends: ["eslint:recommended"],
-
   overrides: [
     // React
     {
@@ -35,6 +34,7 @@ module.exports = {
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
       ],
+
       settings: {
         react: {
           version: "detect",
@@ -71,6 +71,9 @@ module.exports = {
         "plugin:import/recommended",
         "plugin:import/typescript",
       ],
+      rules: {
+        "@typescript-eslint/no-unused-vars": ["warn"],
+      },
     },
 
     // Node
