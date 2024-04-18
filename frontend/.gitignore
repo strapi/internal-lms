@@ -4,3 +4,6 @@ node_modules
 /build
 .env
 pnpm-lock.yaml
+types
+yarn.lock
+package-lock.json
