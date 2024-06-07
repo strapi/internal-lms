@@ -2,17 +2,29 @@ const fs = require("fs").promises;
 const path = require("path");
 const { exec } = require("child_process");
 
-const destinationFolder = "frontend/types";
+const destinationFolder = path.join("frontend", "types");
 
 // Adjust these paths as per your project structure
 const files = [
   {
-    src: path.join(__dirname, "./backend/types/generated/contentTypes.d.ts"),
-    dest: path.join(__dirname, `./${destinationFolder}/contentTypes.d.ts`),
+    src: path.join(
+      __dirname,
+      "backend",
+      "types",
+      "generated",
+      "contentTypes.d.ts"
+    ),
+    dest: path.join(__dirname, destinationFolder, "contentTypes.d.ts"),
   },
   {
-    src: path.join(__dirname, "./backend/types/generated/components.d.ts"),
-    dest: path.join(__dirname, `./${destinationFolder}/components.d.ts`),
+    src: path.join(
+      __dirname,
+      "backend",
+      "types",
+      "generated",
+      "components.d.ts"
+    ),
+    dest: path.join(__dirname, destinationFolder, "components.d.ts"),
   },
 ];
 
