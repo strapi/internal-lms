@@ -1,3 +1,5 @@
+import { expect, describe, it } from "vitest";
+
 export function add(a: number, b: number): number {
   return a + b;
 }

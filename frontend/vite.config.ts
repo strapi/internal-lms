@@ -1,18 +1,22 @@
 /// <reference types="vitest" />
 /// <reference types="vite/client" />
 
-import { vitePlugin as remix } from "@remix-run/dev";
-import { installGlobals } from "@remix-run/node";
 import { defineConfig } from "vite";
+import path from "path";
 import tsconfigPaths from "vite-tsconfig-paths";
+import react from "@vitejs/plugin-react-swc";
 
-installGlobals();
-
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [remix(), tsconfigPaths()],
+  plugins: [react(), tsconfigPaths()],
   test: {
     // allows you to use stuff like describe, it, vi without importing
     globals: true,
     include: ["./tests/*.test.ts"],
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
 });
