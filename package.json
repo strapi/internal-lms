@@ -9,7 +9,7 @@
     "fe:start": "cd frontend && npm run build && npm start",
     "be:dev": "cd backend && npm run develop",
     "be:start": "cd backend && npm start",
-    "setup": "npm run clean && npm install && npm run setup:frontend && npm run setup:backend && npm run fe:types",
+    "setup": "npm install && npm run setup:frontend && npm run setup:backend && npm run fe:types",
     "setup:frontend": "cd frontend && npm install",
     "setup:backend": "cd backend && npm install",
     "clean": "rimraf backend/node_modules frontend/node_modules node_modules",
