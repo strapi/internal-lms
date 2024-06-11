@@ -18,6 +18,7 @@ import { Route as DashboardLayoutDashboardIndexImport } from './routes/_dashboar
 import { Route as DashboardLayoutCoursesIndexImport } from './routes/_dashboardLayout/courses/index'
 import { Route as DashboardLayoutUserSettingsImport } from './routes/_dashboardLayout/_user/settings'
 import { Route as DashboardLayoutUserProfileImport } from './routes/_dashboardLayout/_user/profile'
+import { Route as DashboardLayoutCourseCreateIndexImport } from './routes/_dashboardLayout/course/create/index'
 import { Route as DashboardLayoutCourseCourseIDIndexImport } from './routes/_dashboardLayout/course/$courseID/index'
 
 // Create/Update Routes
@@ -61,6 +62,12 @@ const DashboardLayoutUserProfileRoute = DashboardLayoutUserProfileImport.update(
     getParentRoute: () => DashboardLayoutRoute,
   } as any,
 )
+
+const DashboardLayoutCourseCreateIndexRoute =
+  DashboardLayoutCourseCreateIndexImport.update({
+    path: '/course/create/',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
 
 const DashboardLayoutCourseCourseIDIndexRoute =
   DashboardLayoutCourseCourseIDIndexImport.update({
@@ -128,6 +135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLayoutCourseCourseIDIndexImport
       parentRoute: typeof DashboardLayoutImport
     }
+    '/_dashboardLayout/course/create/': {
+      id: '/_dashboardLayout/course/create/'
+      path: '/course/create'
+      fullPath: '/course/create'
+      preLoaderRoute: typeof DashboardLayoutCourseCreateIndexImport
+      parentRoute: typeof DashboardLayoutImport
+    }
   }
 }
 
@@ -141,6 +155,7 @@ export const routeTree = rootRoute.addChildren({
     DashboardLayoutCoursesIndexRoute,
     DashboardLayoutDashboardIndexRoute,
     DashboardLayoutCourseCourseIDIndexRoute,
+    DashboardLayoutCourseCreateIndexRoute,
   }),
   AuthRoute,
 })
@@ -168,7 +183,8 @@ export const routeTree = rootRoute.addChildren({
         "/_dashboardLayout/_user/settings",
         "/_dashboardLayout/courses/",
         "/_dashboardLayout/dashboard/",
-        "/_dashboardLayout/course/$courseID/"
+        "/_dashboardLayout/course/$courseID/",
+        "/_dashboardLayout/course/create/"
       ]
     },
     "/auth": {
@@ -192,6 +208,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_dashboardLayout/course/$courseID/": {
       "filePath": "_dashboardLayout/course/$courseID/index.tsx",
+      "parent": "/_dashboardLayout"
+    },
+    "/_dashboardLayout/course/create/": {
+      "filePath": "_dashboardLayout/course/create/index.tsx",
       "parent": "/_dashboardLayout"
     }
   }

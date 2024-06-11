@@ -8,8 +8,8 @@ export default function Login() {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-100 dark:bg-gray-950">
       <div className="flex flex-col items-center mb-8">
-        <h1 className="text-3xl font-bold">Welcome back!</h1>
-        <p className="text-gray-500 dark:text-gray-400">Login to continue using our platform.</p>
+        <h1 className="text-3xl font-bold">Welcome to Strapi LMS!</h1>
+        <p className="text-gray-500 dark:text-gray-400">Unlock Learning, Strapi Style!</p>
       </div>
       <div className="mx-4 flex max-w-2xl flex-col items-center space-y-6 rounded-lg bg-white p-8 shadow-lg dark:bg-gray-900">
         <div className="flex flex-col items-center space-y-4">
@@ -22,7 +22,7 @@ export default function Login() {
               className="h-full w-full object-cover"
             />
           </div>
-          <p className="text-gray-500 dark:text-gray-400">Login to continue</p>
+
         </div>
         <Button variant="outline" className="w-full" onClick={ () => naviate({ to: '/dashboard' }) }>
           <FcGoogle className="mr-2 h-4 w-4" />
