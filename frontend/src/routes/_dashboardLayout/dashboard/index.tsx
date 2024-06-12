@@ -1,6 +1,6 @@
 import { CourseCards } from '@/components/CourseCards';
 import { GalleryCards } from '@/components/GalleryCards';
-import { generateCourses } from '@mock/dashboard';
+import { generateCourses } from '@mock/courses';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_dashboardLayout/dashboard/')({

@@ -2,6 +2,7 @@ import UserNav from '@/components/UserNav';
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { FaBell } from 'react-icons/fa';
 import strapiLogo from '../assets/strapi-logo.svg'
+import { Input } from '@/components/ui/input';
 
 export const Route = createFileRoute('/_dashboardLayout')({
   component: () => <DashboardLayout />,
@@ -28,11 +29,9 @@ export const DashboardLayout = () => {
           <Link to="/courses" className="[&.active]:font-bold">
             Courses
           </Link>
-          <Link to="/course/123" className="[&.active]:font-bold">
-            Course
-          </Link>
         </div>
         <div className="flex gap-2 items-center">
+          <Input placeholder="Search..." />
           <FaBell className='w-6 h-6' />
           <UserNav />
         </div>
