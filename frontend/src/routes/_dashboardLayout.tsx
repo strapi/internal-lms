@@ -3,23 +3,22 @@ import UserNav from '@/components/UserNav';
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import { FaBell, FaSearch } from 'react-icons/fa';
 import strapiLogo from '../assets/strapi-logo.svg';
-
 export const Route = createFileRoute('/_dashboardLayout')({
   component: () => <DashboardLayout />,
 });
 
 export const DashboardLayout = () => {
+
   return (
     <div>
       <div className="p-2 flex justify-between items-center m-2">
         <div className="flex gap-2 items-center">
-          <img
-            src={ strapiLogo }
-            width={ 128 }
-            height={ 128 }
-            alt="Logo"
-            className="h-8 w-8"
-          />
+          <Link to="/dashboard" className='w-8 h-8 mr-2'>
+            <img
+              src={ strapiLogo }
+              alt="Logo"
+            />
+          </Link>
           <Link to="/auth" className="[&.active]:font-bold">
             Auth
           </Link>{ ' ' }
@@ -30,6 +29,7 @@ export const DashboardLayout = () => {
             Courses
           </Link>
         </div>
+        { }
         <div className="flex items-center gap-4 w-full justify-end">
           <div className="relative w-1/3">
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 z-10" />

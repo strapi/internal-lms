@@ -1,9 +1,7 @@
+import { RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import SuperTokens from 'supertokens-web-js';
-import App from './App';
 import './index.css';
-import { RouterProvider } from '@tanstack/react-router';
 import router from './providers/router-provider';
 
 
@@ -13,7 +11,6 @@ if (!rootElement.innerHTML) {
 
   root.render(
     <StrictMode>
-      {/* <App /> */ }
       <RouterProvider router={ router } />
     </StrictMode>
   );

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import { CourseCards } from '@/components/CourseCards';
 import { categories, generateCourses } from '@mock/courses';
 import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
 
 export const Route = createFileRoute('/_dashboardLayout/courses/')({
   component: () => <CoursesPage />,

@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_dashboardLayout/course/$courseID/')({
+export const Route = createFileRoute('/_courseLayout/course/$courseID')({
   // In a loader
-  loader: ({ params }) => params.courseId,
+  loader: ({ params }) => params.courseID,
   component: PostComponent,
 })
 
