@@ -1,8 +1,8 @@
+import { Input } from '@/components/ui/input';
 import UserNav from '@/components/UserNav';
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
-import { FaBell } from 'react-icons/fa';
-import strapiLogo from '../assets/strapi-logo.svg'
-import { Input } from '@/components/ui/input';
+import { FaBell, FaSearch } from 'react-icons/fa';
+import strapiLogo from '../assets/strapi-logo.svg';
 
 export const Route = createFileRoute('/_dashboardLayout')({
   component: () => <DashboardLayout />,
@@ -30,8 +30,16 @@ export const DashboardLayout = () => {
             Courses
           </Link>
         </div>
-        <div className="flex gap-2 items-center">
-          <Input placeholder="Search..." />
+        <div className="flex items-center gap-4 w-full justify-end">
+          <div className="relative w-1/3">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 z-10" />
+            <Input
+              type="text"
+              placeholder="Search"
+              className="pl-10 pr-3 py-2 text-md w-full border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6E23DD] focus:border-transparent"
+              value=""
+            />
+          </div>
           <FaBell className='w-6 h-6' />
           <UserNav />
         </div>
