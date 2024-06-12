@@ -10,13 +10,14 @@ import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
 export default defineConfig({
   plugins: [react(), TanStackRouterVite(), tsconfigPaths()],
   test: {
-    // allows you to use stuff like describe, it, vi without importing
     globals: true,
     include: ["./tests/*.test.ts"],
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@interfaces": path.resolve(__dirname, "./types"),
+      "@mock": path.resolve(__dirname, "./mocking"),
     },
   },
 });
