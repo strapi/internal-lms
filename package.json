@@ -1,0 +1,26 @@
+{
+  "name": "internal-lms",
+  "version": "1.0.0",
+  "description": "Strapi's Internal Learning Management System",
+  "scripts": {
+    "fe:test": "cd frontend && npm run test",
+    "fe:types": "node copyTypes.js",
+    "fe:dev": "cd frontend && npm run dev",
+    "fe:start": "cd frontend && npm run build && npm start",
+    "be:dev": "cd backend && npm run develop",
+    "be:start": "cd backend && npm start",
+    "setup": "npm install && npm run setup:frontend && npm run setup:backend && npm run fe:types",
+    "setup:frontend": "cd frontend && npm install",
+    "setup:backend": "cd backend && npm install",
+    "clean": "rimraf backend/node_modules frontend/node_modules node_modules",
+    "start": "concurrently \"npm run be:start\" \"npm run fe:start\"",
+    "dev": "concurrently \"npm run be:dev\" \"npm run fe:dev\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "rimraf": "^3.0.2"
+  }
+}
