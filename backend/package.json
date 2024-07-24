@@ -14,7 +14,6 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-i18n": "4.25.4",
     "@strapi/plugin-users-permissions": "4.25.4",
     "@strapi/strapi": "4.25.4",
     "better-sqlite3": "8.6.0",
@@ -22,6 +21,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "5.3.4",
+    "strapi-plugin-mux-video-uploader": "^2.8.4",
     "styled-components": "5.3.3"
   },
   "devDependencies": {},
