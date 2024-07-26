@@ -43,7 +43,7 @@ module.exports = ({ env }) => ({
                 "https://www.googleapis.com/auth/userinfo.profile",
               ],
               callbackURL:
-                env("PUBLIC_URL", "http://localhost:1337") +
+                env("CLOUD_APP_URL") +
                 strapi.admin.services.passport.getStrategyCallbackURL("google"),
               passReqToCallback: true,
             },
