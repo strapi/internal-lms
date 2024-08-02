@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_courses_modules",
+  "info": {
+    "displayName": "Modules",
+    "icon": "apps"
+  },
+  "options": {},
+  "attributes": {
+    "status": {
+      "type": "string"
+    },
+    "progress": {
+      "type": "integer",
+      "default": 0,
+      "min": 0,
+      "max": 100
+    },
+    "module": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::module.module"
+    }
+  }
+}

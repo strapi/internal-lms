@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "course_statuses",
+  "info": {
+    "singularName": "course-status",
+    "pluralName": "course-statuses",
+    "displayName": "CourseStatus",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "course": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::course.course"
+    },
+    "modules": {
+      "displayName": "Modules",
+      "type": "component",
+      "repeatable": true,
+      "component": "courses.modules"
+    },
+    "computed_progress": {
+      "type": "integer"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "course_statuses"
+    }
+  }
+}
