@@ -13,7 +13,7 @@
   "attributes": {
     "value": {
       "type": "integer",
-      "default": 1,
+      "default": 0,
       "max": 5,
       "required": true,
       "min": 1
