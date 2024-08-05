@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { Course } from '@interfaces/course';
+import { Course } from '@/interfaces/course';
 import { Link } from '@tanstack/react-router';
 
 interface CourseCardsProps {
