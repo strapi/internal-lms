@@ -1,4 +1,4 @@
-import { Course } from '@interfaces/course';
+import { Course } from '@/interfaces/course';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';

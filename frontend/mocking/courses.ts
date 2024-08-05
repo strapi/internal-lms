@@ -1,5 +1,7 @@
-import { Chapter, Course, Module } from "@interfaces/course";
+import { Chapter, Course, Module } from "@/interfaces/course";
 import { faker } from "@faker-js/faker";
+
+
 
 export const categories = [
   "Category 1",
@@ -20,10 +22,10 @@ export function generateCourses(count: number = 5): Course[] {
     const sections: Chapter[] = [];
     const sectionCount = faker.number.int({ min: 1, max: 5 });
     for (let j = 0; j < sectionCount; j++) {
-      const checklists: Module[] = [];
+      const modules: Module[] = [];
       const checklistCount = faker.number.int({ min: 1, max: 10 });
       for (let k = 0; k < checklistCount; k++) {
-        checklists.push({
+        modules.push({
           id: faker.string.uuid(),
           title: faker.lorem.words(2),
           completed: faker.datatype.boolean(),
@@ -32,7 +34,7 @@ export function generateCourses(count: number = 5): Course[] {
       sections.push({
         id: faker.string.uuid(),
         title: faker.lorem.words(3),
-        checklists: checklists,
+        modules: modules,
       });
     }
 

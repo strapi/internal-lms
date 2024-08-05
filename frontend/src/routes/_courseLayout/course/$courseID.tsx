@@ -1,7 +1,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Course } from '@interfaces/course'
+import { Course } from '@/interfaces/course'
 import { generateCourses } from '@mock/courses'
 import { createFileRoute } from '@tanstack/react-router'
 import { PlayIcon } from 'lucide-react'
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_courseLayout/course/$courseID')({
 })
 
 export default function SingleCourse() {
-  const { course, courseID } = Route.useLoaderData<{ course: Course, courseID: string }>();
+  const { course } = Route.useLoaderData<{ course: Course, courseID: string }>();
   console.log(course);
 
   if (!course) {
@@ -62,10 +62,10 @@ export default function SingleCourse() {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2">
-                  { section.checklists.map((checklist) => (
-                    <div key={ checklist.id } className="flex items-center gap-2">
-                      <Checkbox checked={ checklist.completed } />
-                      <span>{ checklist.title }</span>
+                  { section.modules.map((module) => (
+                    <div key={ module.id } className="flex items-center gap-2">
+                      <Checkbox checked={ module.completed } />
+                      <span>{ module.title }</span>
                     </div>
                   )) }
                 </div>
