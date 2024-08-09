@@ -1,11 +1,14 @@
 import { RouterProvider } from "@tanstack/react-router";
 import "./App.css";
+import { ThemeProvider } from "./context/theme";
 import router from "./providers/router-provider";
-// import Login from './components/Login'
-// import { Button } from './components/ui/button'
 
 const App = () => {
-  return <InnerApp />;
+  return (
+    <ThemeProvider>
+      <InnerApp />
+    </ThemeProvider>
+  );
 };
 
 const InnerApp = () => {
