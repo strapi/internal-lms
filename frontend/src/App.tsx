@@ -1,5 +1,4 @@
 import { RouterProvider } from "@tanstack/react-router";
-import "./App.css";
 import { ThemeProvider } from "./context/theme";
 import router from "./providers/router-provider";
 
