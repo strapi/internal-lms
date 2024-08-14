@@ -1,16 +1,18 @@
-import './App.css'
-// import Login from './components/Login'
-// import { Button } from './components/ui/button'
+import { RouterProvider } from "@tanstack/react-router";
+import { ThemeProvider } from "./context/theme";
+import router from "./providers/router-provider";
 
-function App() {
-
+const App = () => {
   return (
-    <>
-      App.tsx
-    </>
-  )
-}
+    <ThemeProvider>
+      <InnerApp />
+    </ThemeProvider>
+  );
+};
 
-export default App
+const InnerApp = () => {
+  // const auth = useAuth()
+  return <RouterProvider router={router} />;
+};
 
-
+export default App;

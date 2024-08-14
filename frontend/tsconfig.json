@@ -19,7 +19,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@interfaces/*": ["./types/*"],
-      "@mock/*": ["./mocking/*"]
+      "@mock/*": ["./mocking/*"],
+      "@hooks/*": ["./src/hooks/*"],
     }
   },
   "include": ["src", "types", "mocking"],
