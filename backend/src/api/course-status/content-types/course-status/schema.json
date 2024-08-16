@@ -22,14 +22,14 @@
       "repeatable": true,
       "component": "courses.modules"
     },
-    "computed_progress": {
+    "computedProgress": {
       "type": "integer"
     },
     "user": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "course_statuses"
+      "inversedBy": "courseStatuses"
     }
   }
 }
