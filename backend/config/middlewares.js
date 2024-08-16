@@ -1,4 +1,4 @@
-module.exports = [
+module.exports = ({ env }) => [
   "strapi::logger",
   "strapi::errors",
   {
@@ -14,6 +14,7 @@ module.exports = [
             "blob:",
             "market-assets.strapi.io",
             "cdn2.iconfinder.com",
+            env("CLOUD_APP_URL", "localhost:1337"),
           ],
           "media-src": [
             "'self'",
@@ -21,6 +22,7 @@ module.exports = [
             "blob:",
             "market-assets.strapi.io",
             "cdn2.iconfinder.com",
+            env("CLOUD_APP_URL", "localhost:1337"),
           ],
           upgradeInsecureRequests: null,
         },
