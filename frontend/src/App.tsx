@@ -3,14 +3,18 @@ import { ThemeProvider } from "./context/theme";
 import router from "./providers/router-provider";
 import { AuthProvider } from "./context/auth";
 import { useAuth } from "./hooks/useAuth";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "./lib/queryClient";
 
 const App = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <InnerApp />
-      </ThemeProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider>
+          <InnerApp />
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 };
 
