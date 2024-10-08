@@ -1,10 +1,9 @@
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "./ui/button";
 import strapiLogo from "../assets/strapi-logo.svg";
-import { useNavigate } from "@tanstack/react-router";
+import { STRAPI_URL, PROVIDERS } from "../lib/utils";
 
 export default function Login() {
-  const naviate = useNavigate();
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-100 dark:bg-gray-950">
       <div className="mb-8 flex flex-col items-center">
@@ -25,14 +24,21 @@ export default function Login() {
             />
           </div>
         </div>
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={() => naviate({ to: "/dashboard" })}
-        >
-          <FcGoogle className="mr-2 h-4 w-4" />
-          Sign in with Google
-        </Button>
+        {PROVIDERS.map((provider) => (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              window.location.assign(
+                `${STRAPI_URL}/api/connect/${provider.id}`,
+              );
+            }}
+          >
+            {/* TODO: Map to corrct logo */}
+            <FcGoogle className="mr-2 h-4 w-4" />
+            {provider.label}
+          </Button>
+        ))}
       </div>
     </div>
   );
