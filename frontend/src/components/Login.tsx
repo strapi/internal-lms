@@ -26,6 +26,7 @@ export default function Login() {
         </div>
         {PROVIDERS.map((provider) => (
           <Button
+            key={provider.id}
             variant="outline"
             className="w-full"
             onClick={() => {

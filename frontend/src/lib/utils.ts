@@ -7,6 +7,13 @@ export function cn(...inputs: ClassValue[]) {
 
 export const STRAPI_URL = import.meta.env.STRAPI_URL ?? "http://localhost:1337";
 
+export const PROVIDERS = [
+  {
+    id: "google",
+    label: "Sign in with Google",
+  },
+];
+
 export const getStrapiMedia = (url: string | null) => {
   if (url === null) return null;
   if (url.startsWith("data:")) return url;
