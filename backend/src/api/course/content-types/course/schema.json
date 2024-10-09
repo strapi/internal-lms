@@ -13,10 +13,13 @@
   "pluginOptions": {},
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "unique": true
     },
     "description": {
-      "type": "blocks"
+      "type": "blocks",
+      "required": true
     },
     "thumbnail": {
       "type": "media",

@@ -4,7 +4,8 @@
   "info": {
     "singularName": "rating",
     "pluralName": "ratings",
-    "displayName": "Rating"
+    "displayName": "Rating",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -21,7 +22,7 @@
     "comment": {
       "type": "text"
     },
-    "users_permissions_user": {
+    "user": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"

@@ -4,7 +4,8 @@
   "info": {
     "singularName": "module",
     "pluralName": "modules",
-    "displayName": "Module"
+    "displayName": "Module",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -16,7 +17,8 @@
       "target": "plugin::mux-video-uploader.mux-asset"
     },
     "title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "section": {
       "type": "string"

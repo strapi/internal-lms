@@ -65,7 +65,7 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "course_statuses": {
+    "courseStatuses": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::course-status.course-status",
