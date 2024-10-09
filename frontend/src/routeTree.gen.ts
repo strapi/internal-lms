@@ -15,8 +15,10 @@ import { Route as AuthImport } from './routes/auth'
 import { Route as DashboardLayoutImport } from './routes/_dashboardLayout'
 import { Route as CourseLayoutImport } from './routes/_courseLayout'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthIndexImport } from './routes/auth/index'
 import { Route as DashboardLayoutDashboardIndexImport } from './routes/_dashboardLayout/dashboard/index'
 import { Route as DashboardLayoutCoursesIndexImport } from './routes/_dashboardLayout/courses/index'
+import { Route as AuthCallbackProviderIdImport } from './routes/auth.callback.$providerId'
 import { Route as DashboardLayoutUserSettingsImport } from './routes/_dashboardLayout/_user/settings'
 import { Route as DashboardLayoutUserProfileImport } from './routes/_dashboardLayout/_user/profile'
 import { Route as CourseLayoutCourseCourseIDImport } from './routes/_courseLayout/course/$courseID'
@@ -44,6 +46,11 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthIndexRoute = AuthIndexImport.update({
+  path: '/',
+  getParentRoute: () => AuthRoute,
+} as any)
+
 const DashboardLayoutDashboardIndexRoute =
   DashboardLayoutDashboardIndexImport.update({
     path: '/dashboard/',
@@ -55,6 +62,11 @@ const DashboardLayoutCoursesIndexRoute =
     path: '/courses/',
     getParentRoute: () => DashboardLayoutRoute,
   } as any)
+
+const AuthCallbackProviderIdRoute = AuthCallbackProviderIdImport.update({
+  path: '/callback/$providerId',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 const DashboardLayoutUserSettingsRoute =
   DashboardLayoutUserSettingsImport.update({
@@ -114,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
+    '/auth/': {
+      id: '/auth/'
+      path: '/'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexImport
+      parentRoute: typeof AuthImport
+    }
     '/_courseLayout/course/$courseID': {
       id: '/_courseLayout/course/$courseID'
       path: '/course/$courseID'
@@ -134,6 +153,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings'
       preLoaderRoute: typeof DashboardLayoutUserSettingsImport
       parentRoute: typeof DashboardLayoutImport
+    }
+    '/auth/callback/$providerId': {
+      id: '/auth/callback/$providerId'
+      path: '/callback/$providerId'
+      fullPath: '/auth/callback/$providerId'
+      preLoaderRoute: typeof AuthCallbackProviderIdImport
+      parentRoute: typeof AuthImport
     }
     '/_dashboardLayout/courses/': {
       id: '/_dashboardLayout/courses/'
@@ -173,7 +199,10 @@ export const routeTree = rootRoute.addChildren({
     DashboardLayoutCoursesIndexRoute,
     DashboardLayoutDashboardIndexRoute,
   }),
-  AuthRoute,
+  AuthRoute: AuthRoute.addChildren({
+    AuthIndexRoute,
+    AuthCallbackProviderIdRoute,
+  }),
 })
 
 /* prettier-ignore-end */
@@ -210,7 +239,15 @@ export const routeTree = rootRoute.addChildren({
       ]
     },
     "/auth": {
-      "filePath": "auth.tsx"
+      "filePath": "auth.tsx",
+      "children": [
+        "/auth/",
+        "/auth/callback/$providerId"
+      ]
+    },
+    "/auth/": {
+      "filePath": "auth/index.tsx",
+      "parent": "/auth"
     },
     "/_courseLayout/course/$courseID": {
       "filePath": "_courseLayout/course/$courseID.tsx",
@@ -223,6 +260,10 @@ export const routeTree = rootRoute.addChildren({
     "/_dashboardLayout/_user/settings": {
       "filePath": "_dashboardLayout/_user/settings.tsx",
       "parent": "/_dashboardLayout"
+    },
+    "/auth/callback/$providerId": {
+      "filePath": "auth.callback.$providerId.tsx",
+      "parent": "/auth"
     },
     "/_dashboardLayout/courses/": {
       "filePath": "_dashboardLayout/courses/index.tsx",

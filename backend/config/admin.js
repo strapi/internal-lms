@@ -2,6 +2,7 @@ const GoogleStrategy = require("passport-google-oauth2");
 
 const verify = (request, accessToken, refreshToken, profile, done) => {
   if (profile && profile.email && profile.email.endsWith("@strapi.io")) {
+    console.log(profile);
     done(null, {
       email: profile.email,
       firstname: profile.given_name,
