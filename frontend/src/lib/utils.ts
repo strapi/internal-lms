@@ -5,6 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const AUTH_KEY = import.meta.env.AUTH_KEY ?? "jwt";
 export const STRAPI_URL = import.meta.env.STRAPI_URL ?? "http://localhost:1337";
 
 export const PROVIDERS = [

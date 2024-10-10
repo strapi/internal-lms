@@ -1,4 +1,3 @@
-export const getAuthData = (): string | null => {
-  const token = localStorage.getItem("jwt");
-  return token;
-};
+import { AUTH_KEY } from "@/lib/utils";
+
+export const getAuthData: string | null = localStorage.getItem(AUTH_KEY);

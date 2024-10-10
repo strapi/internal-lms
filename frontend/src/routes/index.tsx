@@ -3,7 +3,7 @@ import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {
-    const authData = getAuthData();
+    const authData = getAuthData;
     if (!authData) {
       throw redirect({ to: "/auth" });
     } else {
