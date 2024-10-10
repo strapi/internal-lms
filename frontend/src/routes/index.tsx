@@ -1,5 +1,13 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { getAuthData } from "@/hooks/getAuthData";
+import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  component: () => Navigate({ to: "/auth", replace: true }),
+  beforeLoad: () => {
+    const authData = getAuthData;
+    if (!authData) {
+      throw redirect({ to: "/auth" });
+    } else {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });

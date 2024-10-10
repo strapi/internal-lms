@@ -4,8 +4,18 @@ import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { FaBell, FaSearch } from "react-icons/fa";
 import strapiLogo from "../assets/strapi-logo.svg";
 import ThemeToggle from "@/components/ui/theme-toggle";
+import { fetchHomePageData } from "@/lib/queries/appQueries";
+
 export const Route = createFileRoute("/_dashboardLayout")({
   component: () => <DashboardLayout />,
+  loader: ({ context: { queryClient } }) => {
+    const query = queryClient.ensureQueryData({
+      queryKey: ["dashboard"],
+      queryFn: fetchHomePageData,
+    });
+
+    return query;
+  },
 });
 
 export const DashboardLayout = () => {

@@ -1,3 +1,15 @@
+export interface AuthPayloadType {
+  userInfo: {
+    email: string;
+  };
+  jwt: string;
+}
+
 export interface AuthContextType {
-  loggedIn: boolean;
+  authState: {
+    loggedIn: boolean;
+    token: string;
+  };
+  loginAction?(payload: AuthPayloadType): null;
+  logOutAction?(): null;
 }
