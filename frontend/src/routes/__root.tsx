@@ -1,11 +1,7 @@
-import { AuthContextType } from "@/context/auth";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { lazy } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-interface RouterContext {
-  auth: AuthContextType;
-}
+import { QueryClient } from "@tanstack/react-query";
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV !== "production"
@@ -16,12 +12,14 @@ const TanStackRouterDevtools =
       )
     : () => null;
 
-export const Route = createRootRouteWithContext<RouterContext>()({
-  component: () => (
-    <>
-      <Outlet />
-      {TanStackRouterDevtools && <TanStackRouterDevtools />}
-      <ReactQueryDevtools initialIsOpen={false} />
-    </>
-  ),
-});
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+  {
+    component: () => (
+      <>
+        <Outlet />
+        {TanStackRouterDevtools && <TanStackRouterDevtools />}
+        <ReactQueryDevtools initialIsOpen={false} />
+      </>
+    ),
+  },
+);
