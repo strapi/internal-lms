@@ -1,79 +1,145 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Course } from '@/interfaces/course'
-import { generateCourses } from '@mock/courses'
-import { createFileRoute } from '@tanstack/react-router'
-import { PlayIcon } from 'lucide-react'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Course, Module } from "@/interfaces/course";
+import { createFileRoute } from "@tanstack/react-router";
+import qs from "qs";
+import MuxPlayer from "@mux/mux-player-react";
 
-export const Route = createFileRoute('/_courseLayout/course/$courseID')({
-  loader: ({ params }) => {
-    const courses = generateCourses(1);
-    const course = courses[0]; // Get the first (and only) course
-    return { course, courseID: params.courseID }
+const API_URL = import.meta.env.VITE_STRAPI_API_URL;
+const API_TOKEN = import.meta.env.VITE_STRAPI_API_KEY;
+const MUX_SIGNING_KEY = import.meta.env.VITE_MUX_SIGNING_KEY_PRIVATE_KEY;
+
+if (!API_URL || !API_TOKEN) {
+  throw new Error("API_URL or API_TOKEN is missing. Check your .env file.");
+}
+
+function groupModulesBySection(modules: Module[]): Record<string, Module[]> {
+  return modules.reduce(
+    (acc, module) => {
+      const section = module.section || "Uncategorized";
+      if (!acc[section]) {
+        acc[section] = [];
+      }
+      acc[section].push(module);
+      return acc;
+    },
+    {} as Record<string, Module[]>,
+  );
+}
+
+export const Route = createFileRoute("/_courseLayout/course/$courseID")({
+  loader: async ({ params }) => {
+    const query = qs.stringify(
+      {
+        fields: ["title", "description"],
+        populate: {
+          thumbnail: { populate: "*" },
+          categories: { populate: "*" },
+          modules: { populate: "*" },
+        },
+      },
+      { encodeValuesOnly: true },
+    );
+
+    const response = await fetch(
+      `${API_URL}/courses/${params.courseID}?${query}`,
+      {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch course: ${response.statusText}`);
+    }
+
+    const { data }: { data: Course } = await response.json();
+    return { course: data, courseID: params.courseID };
   },
   component: SingleCourse,
-})
+});
 
 export default function SingleCourse() {
-  const { course } = Route.useLoaderData<{ course: Course, courseID: string }>();
-  console.log(course);
+  const { course } = Route.useLoaderData<{
+    course: Course;
+    courseID: string;
+  }>();
 
   if (!course) {
     return <div>Loading...</div>;
   }
 
+  // Group modules by section
+  const modulesBySection = groupModulesBySection(course.modules);
+
+  // Extract the first playable video playback_id
+  const firstPlaybackId =
+    course.modules.find((module) => module.media?.playback_id)?.media
+      ?.playback_id || "";
+
   return (
     <div className="flex h-screen w-full">
-      <div className="flex-1 overflow-hidden rounded-r-lg bg-gray-100 dark:bg-gray-900 h-[70%]">
+      {/* Video Section */}
+      <div className="h-[70%] flex-1 overflow-hidden rounded-r-lg bg-gray-100 dark:bg-gray-900">
         <div className="relative h-full w-full">
           <div className="absolute inset-0 overflow-hidden">
-            <video className="h-full w-full object-cover">
-              <source
-                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
-                type="video/mp4"
+            {firstPlaybackId ? (
+              <MuxPlayer
+                playbackId={firstPlaybackId}
+                playback-token={MUX_SIGNING_KEY}
+                metadata={{
+                  video_id: `mux-video-${firstPlaybackId}`,
+                  video_title: course.title,
+                }}
+                className="h-full w-full"
               />
-            </video>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-black text-white">
+                <p>No video available</p>
+              </div>
+            )}
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           </div>
-          <div className="relative z-10 flex h-full items-center justify-center">
-            <Button
-              variant="ghost"
-              size="lg"
-              className="rounded-full bg-white/20 p-4 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-            >
-              <PlayIcon className="h-8 w-8" />
-            </Button>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm p-4 text-white">
-            <h3 className="text-lg font-bold">{ course.title }</h3>
+          <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-4 text-white backdrop-blur-sm">
+            <h3 className="text-lg font-bold">{course.title}</h3>
             <p className="text-sm">
-              { course.description }
+              {course.description.map((paragraph, index) => (
+                <span key={index}>
+                  {paragraph.children.map((child) => child.text).join(" ")}
+                </span>
+              ))}
             </p>
           </div>
         </div>
       </div>
+      {/* Sidebar Section */}
       <div className="flex w-[20%] flex-col overflow-hidden rounded-l-lg bg-white p-6 dark:bg-gray-950">
         <Accordion type="single" collapsible className="flex-1">
-          { course.sections.map((section, index) => (
-            <AccordionItem key={ section.id } value={ `item-${index + 1}` }>
+          {Object.entries(modulesBySection).map(([section, modules], index) => (
+            <AccordionItem key={section} value={`section-${index + 1}`}>
               <AccordionTrigger className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{ section.title }</h3>
+                <h3 className="text-lg font-semibold">{section}</h3>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2">
-                  { section.modules.map((module) => (
-                    <div key={ module.id } className="flex items-center gap-2">
-                      <Checkbox checked={ module.completed } />
-                      <span>{ module.title }</span>
+                  {modules.map((module) => (
+                    <div key={module.id} className="flex items-center gap-2">
+                      <Checkbox checked={false /* Handle completion */} />
+                      <span>{module.title}</span>
                     </div>
-                  )) }
+                  ))}
                 </div>
               </AccordionContent>
             </AccordionItem>
-          )) }
+          ))}
         </Accordion>
       </div>
     </div>
-  )
+  );
 }
