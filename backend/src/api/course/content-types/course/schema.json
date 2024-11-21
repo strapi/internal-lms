@@ -45,10 +45,10 @@
       "relation": "oneToMany",
       "target": "api::category.category"
     },
-    "modules": {
+    "section": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::module.module"
+      "target": "api::section.section"
     }
   }
 }

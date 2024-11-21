@@ -14,6 +14,7 @@
     "strapi": "strapi"
   },
   "dependencies": {
+    "@mux/mux-node": "^9.0.1",
     "@strapi/plugin-users-permissions": "5.4.0",
     "@strapi/strapi": "5.4.0",
     "better-sqlite3": "11.3.0",
@@ -24,7 +25,6 @@
     "strapi-plugin-mux-video-uploader": "^3.0.1",
     "styled-components": "^6.0.0"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=18.0.0 <=20.x.x",
     "npm": ">=6.0.0"

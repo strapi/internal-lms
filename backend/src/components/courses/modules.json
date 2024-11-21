@@ -1,24 +1,21 @@
 {
   "collectionName": "components_courses_modules",
   "info": {
-    "displayName": "Modules",
-    "icon": "apps"
+    "displayName": "modules",
+    "description": ""
   },
   "options": {},
   "attributes": {
-    "status": {
+    "title": {
       "type": "string"
     },
-    "progress": {
-      "type": "integer",
-      "default": 0,
-      "min": 0,
-      "max": 100
-    },
-    "module": {
+    "media": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::module.module"
+      "target": "plugin::mux-video-uploader.mux-asset"
+    },
+    "progress": {
+      "type": "integer"
     }
   }
 }

@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sections",
+  "info": {
+    "singularName": "section",
+    "pluralName": "sections",
+    "displayName": "Section",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "modules": {
+      "displayName": "modules",
+      "type": "component",
+      "repeatable": true,
+      "component": "courses.modules"
+    }
+  }
+}

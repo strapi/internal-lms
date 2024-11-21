@@ -39,17 +39,6 @@ export interface Author {
   publishedAt: string;
 }
 
-export interface Module {
-  id: number;
-  title: string;
-  section: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  documentId: string;
-  media?: MuxAsset;
-}
-
 export interface MuxAsset {
   id: number;
   title: string;
@@ -67,33 +56,24 @@ export interface MuxAsset {
   publishedAt: string;
 }
 
-export interface Media {
+export interface Module {
   id: number;
   title: string;
-  upload_id: string;
-  asset_id: string | null;
-  playback_id: string | null;
-  signed: boolean;
-  error_message: string | null;
-  isReady: boolean;
-  duration: number | null;
-  aspect_ratio: string | null;
-  asset_data: string | null;
   createdAt: string;
   updatedAt: string;
-  documentId: string;
   publishedAt: string;
-}
-export interface Course {
-  id: string;
   documentId: string;
-  title: string;
-  description: Paragraph[];
-  thumbnail?: Image;
-  categories: Category[];
-  // ratings: any[];
-  authors: Author[];
+  media?: MuxAsset;
+}
+
+export interface Section {
+  id: number;
+  name: string;
   modules: Module[];
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  documentId: string;
 }
 
 export interface Paragraph {
@@ -104,4 +84,15 @@ export interface Paragraph {
 export interface TextNode {
   type: string;
   text: string;
+}
+
+export interface Course {
+  id: string;
+  documentId: string;
+  title: string;
+  description: Paragraph[];
+  thumbnail?: Image;
+  categories: Category[];
+  authors: Author[];
+  section: Section[];
 }

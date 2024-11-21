@@ -16,12 +16,6 @@
       "relation": "oneToOne",
       "target": "api::course.course"
     },
-    "modules": {
-      "displayName": "Modules",
-      "type": "component",
-      "repeatable": true,
-      "component": "courses.modules"
-    },
     "computed_progress": {
       "type": "integer"
     },
