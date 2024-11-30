@@ -1,12 +1,18 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+/**
+ * Merges class names using clsx and tailwind-merge.
+ * @param {...ClassValue[]} inputs - The class names to merge.
+ * @returns {string} The merged class names.
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const AUTH_KEY = import.meta.env.AUTH_KEY ?? "jwt";
-export const STRAPI_URL = import.meta.env.STRAPI_URL ?? "http://localhost:1337";
+export const AUTH_KEY = import.meta.env.VITE_AUTH_KEY ?? "jwt";
+export const STRAPI_URL =
+  import.meta.env.VITE_STRAPI_URL ?? "http://localhost:1337";
 
 export const PROVIDERS = [
   {
@@ -15,6 +21,11 @@ export const PROVIDERS = [
   },
 ];
 
+/**
+ * Constructs the full URL for Strapi media assets.
+ * @param {string | null} url - The media URL.
+ * @returns {string | null} The full media URL or null.
+ */
 export const getStrapiMedia = (url: string | null) => {
   if (url === null) return null;
   if (url.startsWith("data:")) return url;

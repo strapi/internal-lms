@@ -1,96 +1,56 @@
-import { useEffect, useState } from "react";
-import qs from "qs";
+import React, { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { CourseCards } from "@/components/CourseCards";
 import { Category, Course } from "@/interfaces/course";
-
-const API_URL = import.meta.env.VITE_STRAPI_API_URL;
-const API_TOKEN = import.meta.env.VITE_STRAPI_API_KEY;
-
-if (!API_URL || !API_TOKEN) {
-  throw new Error("API_URL or API_TOKEN is missing. Check your .env file.");
-}
-
-interface StrapiResponse<T> {
-  data: T[];
-}
+import { fetchCategories, fetchCourses } from "@/lib/queries/appQueries";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboardLayout/courses/")({
   component: () => <CoursesPage />,
 });
 
-export const CoursesPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
+const CoursesPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const query = qs.stringify(
-        {
-          fields: ["documentId", "title", "description"],
-        },
-        { encodeValuesOnly: true },
-      );
+  const {
+    data: categories = [],
+    isLoading: isCategoriesLoading,
+    error: categoriesError,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
 
-      try {
-        const response = await fetch(`${API_URL}/categories?${query}`, {
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-          },
-        });
+  const {
+    data: courses = [],
+    isLoading: isCoursesLoading,
+    error: coursesError,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: fetchCourses,
+  });
 
-        if (!response.ok) {
-          console.error("Failed to fetch categories:", response.statusText);
-          return;
-        }
+  // Handle loading states
+  if (isCategoriesLoading || isCoursesLoading) {
+    return <div>Loading...</div>;
+  }
 
-        const { data }: StrapiResponse<Category> = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
+  // Handle error states
+  if (categoriesError) {
+    return <div>Error loading categories: {categoriesError.message}</div>;
+  }
 
-    const fetchCourses = async () => {
-      const query = qs.stringify(
-        {
-          fields: ["documentId", "title", "description"],
-          populate: "*",
-        },
-        { encodeValuesOnly: true },
-      );
+  if (coursesError) {
+    return <div>Error loading courses: {coursesError.message}</div>;
+  }
 
-      try {
-        const response = await fetch(`${API_URL}/courses?${query}`, {
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-          },
-        });
-
-        if (!response.ok) {
-          console.error("Failed to fetch courses:", response.statusText);
-          return;
-        }
-
-        const { data }: StrapiResponse<Course> = await response.json();
-        setCourses(data);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      }
-    };
-
-    fetchCategories();
-    fetchCourses();
-  }, []);
-
+  // Filter courses based on selected category
   const filteredCourses = selectedCategory
-    ? courses.filter((course) =>
-        course.categories.some((category) => category.id === selectedCategory),
+    ? courses.filter((course: Course) =>
+        course.categories.some((category: Category) => category.id === selectedCategory),
       )
     : courses;
-
-    console.log(filteredCourses);
 
   return (
     <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-5">
@@ -101,11 +61,12 @@ export const CoursesPage: React.FC = () => {
           <li>
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`w-full rounded-lg p-2 text-left ${
+              className={cn(
+                "w-full rounded-lg p-2 text-left",
                 selectedCategory === null
                   ? "bg-blue-500 text-white"
-                  : "bg-white text-black"
-              }`}
+                  : "bg-white text-black",
+              )}
             >
               Show All
             </button>
@@ -114,11 +75,12 @@ export const CoursesPage: React.FC = () => {
             <li key={category.id}>
               <button
                 onClick={() => setSelectedCategory(category.id)}
-                className={`w-full rounded-lg p-2 text-left ${
+                className={cn(
+                  "w-full rounded-lg p-2 text-left",
                   selectedCategory === category.id
                     ? "bg-blue-500 text-white"
-                    : "bg-white text-black"
-                }`}
+                    : "bg-white text-black",
+                )}
               >
                 {category.title}
               </button>

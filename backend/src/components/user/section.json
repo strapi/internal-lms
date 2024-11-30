@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_user_sections",
+  "info": {
+    "displayName": "section"
+  },
+  "options": {},
+  "attributes": {
+    "section": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::section.section"
+    },
+    "modules": {
+      "displayName": "modules",
+      "type": "component",
+      "repeatable": true,
+      "component": "user.modules"
+    }
+  }
+}

@@ -1,10 +1,11 @@
-import { Input } from "@/components/ui/input";
-import UserNav from "@/components/UserNav";
+import React from "react";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { FaBell, FaSearch } from "react-icons/fa";
-import strapiLogo from "../assets/strapi-logo.svg";
-import ThemeToggle from "@/components/ui/theme-toggle";
 import { fetchHomePageData } from "@/lib/queries/appQueries";
+import { Input } from "@/components/ui/input";
+import UserNav from "@/components/UserNav";
+import ThemeToggle from "@/components/ui/theme-toggle";
+import strapiLogo from "../assets/strapi-logo.svg";
 
 export const Route = createFileRoute("/_dashboardLayout")({
   component: () => <DashboardLayout />,
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/_dashboardLayout")({
   },
 });
 
-export const DashboardLayout = () => {
+export const DashboardLayout: React.FC = () => {
   return (
     <div>
       <div className="m-2 flex items-center justify-between p-2">
@@ -26,9 +27,6 @@ export const DashboardLayout = () => {
           <Link to="/dashboard" className="mr-2 h-8 w-8">
             <img src={strapiLogo} alt="Logo" />
           </Link>
-          <Link to="/auth" className="[&.active]:font-bold">
-            Auth
-          </Link>{" "}
           <Link to="/dashboard" className="[&.active]:font-bold">
             Dashboard
           </Link>
@@ -36,7 +34,7 @@ export const DashboardLayout = () => {
             Courses
           </Link>
         </div>
-        {}
+
         <div className="flex w-full items-center justify-end gap-4">
           <div className="relative w-1/3">
             <FaSearch className="absolute left-3 top-1/2 z-10 -translate-y-1/2 transform text-gray-500" />
@@ -47,6 +45,7 @@ export const DashboardLayout = () => {
               value=""
             />
           </div>
+
           <FaBell className="h-6 w-6" />
           <UserNav />
           <ThemeToggle />

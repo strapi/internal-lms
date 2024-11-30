@@ -16,7 +16,7 @@ export const CourseCards: React.FC<CourseCardsProps> = ({
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {courses.map((course: Course) => (
-        <Link key={course.id} to={`/course/${course.documentId}`}>
+        <Link key={course.id} to={`/courses/course/${course.slug}`}>
           <Card key={course.id} className="rounded-lg p-6 shadow-lg">
             {course.thumbnail && (
               <img

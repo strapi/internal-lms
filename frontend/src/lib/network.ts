@@ -4,23 +4,30 @@ import { getAuthData } from "@/hooks/getAuthData";
 import { redirect } from "@tanstack/react-router";
 
 const axiosInstance = axios.create({
-  baseURL: STRAPI_URL + "/api",
-  headers: {
-    Authorization: `Bearer ${getAuthData}`,
+  baseURL: `${STRAPI_URL}/api`,
+});
+
+// Request Interceptor to Set Authorization Header
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = getAuthData(); // Call the function to get the latest JWT
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
   },
-});
+  (error) => Promise.reject(error),
+);
 
-axiosInstance.interceptors.request.use((ctx) => {
-  // check to see if the Bearer token header is set correctly
-  return ctx;
-});
-
+// Response Interceptor to Handle Unauthorized Errors
 axiosInstance.interceptors.response.use(
-  (res) => {
-    return res;
-  },
+  (response) => response,
   (error) => {
-    if (error.status === 401 || error.status === 403) {
+    if (
+      error.response &&
+      (error.response.status === 401 || error.response.status === 403)
+    ) {
+      // Redirect to the authentication page if unauthorized
       throw redirect({ to: "/auth" });
     }
     return Promise.reject(error);

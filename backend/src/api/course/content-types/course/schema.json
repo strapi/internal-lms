@@ -49,6 +49,10 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::section.section"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
     }
   }
 }

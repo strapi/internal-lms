@@ -3,14 +3,17 @@ import { ThemeProvider } from "./context/theme";
 import router from "./providers/router-provider";
 import { QueryClientProvider } from "@tanstack/react-query";
 import queryClient from "./lib/queryClient";
+import { AuthProvider } from "@/context/auth"; 
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <InnerApp />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <InnerApp />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 };
 

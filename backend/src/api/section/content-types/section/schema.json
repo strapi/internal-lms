@@ -16,10 +16,9 @@
       "type": "string"
     },
     "modules": {
-      "displayName": "modules",
-      "type": "component",
-      "repeatable": true,
-      "component": "courses.modules"
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::module.module"
     }
   }
 }

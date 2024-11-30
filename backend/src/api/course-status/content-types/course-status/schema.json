@@ -8,22 +8,29 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
+  "pluginOptions": {},
   "attributes": {
     "course": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::course.course"
     },
-    "computed_progress": {
+    "progress": {
       "type": "integer"
     },
     "user": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "course_statuses"
+      "inversedBy": "courseStatuses"
+    },
+    "section": {
+      "displayName": "section",
+      "type": "component",
+      "repeatable": true,
+      "component": "user.section"
     }
   }
 }

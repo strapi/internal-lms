@@ -1,3 +1,5 @@
+import { CourseStatusData } from "./course";
+
 export interface AuthPayloadType {
   userInfo: {
     email: string;
@@ -6,10 +8,27 @@ export interface AuthPayloadType {
 }
 
 export interface AuthContextType {
-  authState: {
-    loggedIn: boolean;
-    token: string;
-  };
-  loginAction?(payload: AuthPayloadType): null;
-  logOutAction?(): null;
+  authState: AuthState;
+  setJwt: (token: string | null) => void;
+  login: (token: string) => void;
+  logout: () => void;
+}
+
+// User interface
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  courseStatuses?: CourseStatusData[];
+}
+
+export interface AuthState {
+  loggedIn: boolean;
+  token: string | null;
+  username: string | null;
+  userId: number | null;
+}
+
+export interface AuthProviderProps {
+  children: React.ReactNode;
 }
