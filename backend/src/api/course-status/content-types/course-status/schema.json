@@ -26,7 +26,7 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "courseStatuses"
     },
-    "section": {
+    "sections": {
       "displayName": "section",
       "type": "component",
       "repeatable": true,

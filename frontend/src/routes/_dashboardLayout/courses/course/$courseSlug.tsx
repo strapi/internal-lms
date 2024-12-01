@@ -17,7 +17,12 @@ import {
   createOrUpdateCourseStatus,
   fetchUserCourseStatuses,
 } from "@/lib/queries/appQueries";
-import { Course, CourseStatusData, User } from "@/interfaces/course";
+import { Course, UserCourseStatus } from "@/interfaces/course";
+import { User as AuthUser } from "@/interfaces/auth";
+
+interface User extends AuthUser {
+  courseStatuses?: UserCourseStatus[];
+}
 
 const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
 
@@ -40,7 +45,7 @@ const SingleCourse: React.FC = () => {
     data: authenticatedUser,
     isLoading: userLoading,
     error: userError,
-  } = useQuery<User & { courseStatuses: CourseStatusData[] }, Error>({
+  } = useQuery<User, Error>({
     queryKey: ["authenticatedUser"],
     queryFn: fetchUserCourseStatuses,
   });
@@ -66,7 +71,7 @@ const SingleCourse: React.FC = () => {
   useEffect(() => {
     if (course && authenticatedUser && authenticatedUser.courseStatuses) {
       const courseStatus = authenticatedUser.courseStatuses.find(
-        (status) => status.courseDocumentId === course.documentId,
+        (status) => status.course?.documentId === course.documentId,
       );
 
       const progressMap: Record<string, number> = {};
@@ -74,13 +79,14 @@ const SingleCourse: React.FC = () => {
       let nextSectionDocumentId: string | null = null;
 
       if (courseStatus) {
-        courseStatus.section.forEach((sectionStatus) => {
+        courseStatus.sections.forEach((sectionStatus) => {
           sectionStatus.modules.forEach((moduleStatus) => {
-            progressMap[moduleStatus.moduleDocumentId] = moduleStatus.progress;
+            const moduleDocId = moduleStatus.module.documentId;
+            progressMap[moduleDocId] = moduleStatus.progress;
 
             if (nextModuleDocumentId === null && moduleStatus.progress < 100) {
-              nextModuleDocumentId = moduleStatus.moduleDocumentId;
-              nextSectionDocumentId = sectionStatus.sectionDocumentId;
+              nextModuleDocumentId = moduleDocId;
+              nextSectionDocumentId = sectionStatus.section.documentId;
             }
           });
         });
@@ -154,9 +160,9 @@ const SingleCourse: React.FC = () => {
           totalModules || 0;
 
       updateCourseStatus({
-        courseDocumentId: course.documentId,
+        course: course.documentId,
         progress: Math.round(overallProgress),
-        section: [
+        sections: [
           {
             sectionDocumentId: sectionDocumentId,
             modules: [

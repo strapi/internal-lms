@@ -103,39 +103,74 @@ export interface Course {
   section: Section[];
 }
 
-// User interface
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  courseStatuses?: CourseStatusData[];
-}
-
-// SectionStatus interface representing the section component in CourseStatusData
-export interface SectionStatus {
-  section: SectionInfo;
-  modules: ModuleStatus[];
-}
-
 // ModuleStatus interface for tracking module progress in CourseStatusData
 export interface SectionInfo {
   documentId: string;
   name?: string;
 }
 
+// ModuleStatus interface
 export interface ModuleStatus {
+  id?: number; // Made optional
+  progress: number;
+  module: {
+    id?: number; // Made optional
+    documentId: string;
+  };
+}
+
+// SectionStatus interface
+export interface SectionStatus {
+  id?: number; // Made optional
+  documentId: string;
+  modules: ModuleStatus[];
+}
+
+// ModuleProgress interface for input
+export interface ModuleProgress {
   moduleDocumentId: string;
   progress: number;
 }
 
-// CourseStatusData interface representing the course-status content type
-export interface CourseStatusData {
-  id?: number;
-  courseDocumentId: string;
-  progress: number;
+// SectionProgress interface for input
+export interface SectionProgress {
+  sectionDocumentId: string;
+  modules: ModuleProgress[];
+}
+
+// CourseStatusInputData interface for input
+export interface CourseStatusInputData {
+  course: string; // courseDocumentId
   user?: number;
+  progress: number;
+  sections: SectionProgress[];
+}
+
+export interface UserModule {
+  id?: number; // Optional because it might not be present when creating new entries
+  progress: number;
+  module: {
+    id?: number;
+    documentId: string;
+  };
+}
+
+export interface UserSection {
+  id?: number;
   section: {
-    sectionDocumentId: string;
-    modules: ModuleStatus[];
-  }[];
+    id?: number;
+    documentId: string;
+  };
+  modules: UserModule[];
+}
+
+export interface UserCourseStatus {
+  id: number;
+  documentId: string;
+  progress: number;
+  course: {
+    id: number;
+    documentId: string;
+  };
+  sections: UserSection[];
 }

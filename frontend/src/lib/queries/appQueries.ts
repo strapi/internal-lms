@@ -1,8 +1,16 @@
 import { axiosInstance as axios } from "../network";
 import qs from "qs";
-import { Category, Course, CourseStatusData } from "@/interfaces/course";
-import { User } from "@/interfaces/auth";
+import {
+  Category,
+  Course,
+  CourseStatusInputData,
+  UserCourseStatus,
+} from "@/interfaces/course";
+import { User as AuthUser } from "@/interfaces/auth";
 
+export interface User extends AuthUser {
+  courseStatuses?: UserCourseStatus[];
+}
 const fetchHomePageData = async () => {
   return axios.get("/courses");
 };
@@ -107,11 +115,9 @@ const fetchAuthenticatedUser = async (): Promise<User> => {
 
 /**
  * Fetches the current authenticated user's details, including courseStatuses.
- * @returns {Promise<User & { courseStatuses: CourseStatusData[] }>} A promise that resolves to the user details.
+ * @returns {Promise<UserCourseStatus>} A promise that resolves to the user details.
  */
-const fetchUserCourseStatuses = async (): Promise<
-  User & { courseStatuses: CourseStatusData[] }
-> => {
+const fetchUserCourseStatuses = async (): Promise<User> => {
   const query = qs.stringify(
     {
       populate: {
@@ -120,8 +126,11 @@ const fetchUserCourseStatuses = async (): Promise<
             course: {
               fields: ["documentId"],
             },
-            section: {
+            sections: {
               populate: {
+                section: {
+                  fields: ["documentId"],
+                },
                 modules: {
                   populate: {
                     module: {
@@ -139,7 +148,7 @@ const fetchUserCourseStatuses = async (): Promise<
   );
 
   const response = await axios.get(`/users/me?${query}`);
-  return response.data; // Ensure response.data contains the user data with courseStatuses
+  return response.data;
 };
 
 /**
@@ -148,39 +157,36 @@ const fetchUserCourseStatuses = async (): Promise<
  * @param {CourseSimple} data.course - The course information.
  * @param {number} data.progress - The progress percentage (0–100).
  * @param {SectionStatus} data.section - The section and module progress data.
- * @returns {Promise<CourseStatusData>} The response from the API.
+ * @returns {Promise<UserCourseStatus>} The response from the API.
  */
 const createOrUpdateCourseStatus = async (
-  data: CourseStatusData,
-): Promise<CourseStatusData> => {
-  // Fetch the authenticated user with preloaded courseStatuses
+  data: CourseStatusInputData,
+): Promise<UserCourseStatus> => {
   const authenticatedUser = await fetchUserCourseStatuses();
   const userId = authenticatedUser.id;
 
-  // Check if a course status exists for the provided course
   const existingCourseStatus = authenticatedUser.courseStatuses?.find(
-    (status) => status.courseDocumentId === data.courseDocumentId,
+    (status) => status.course?.documentId === data.course,
   );
 
   if (existingCourseStatus) {
-    // Update the existing course status
-    const statusId = existingCourseStatus.id!;
-    const updatedSections = [...(existingCourseStatus.section || [])];
+    const statusDocumentId = existingCourseStatus.documentId;
+    const updatedSections = [...(existingCourseStatus.sections || [])];
 
     // Handle sections and modules
-    data.section.forEach((newSection) => {
+    data.sections.forEach((newSection) => {
       const sectionIndex = updatedSections.findIndex(
-        (section) => section.sectionDocumentId === newSection.sectionDocumentId,
+        (section) =>
+          section.section.documentId === newSection.sectionDocumentId,
       );
 
       if (sectionIndex > -1) {
-        // Section exists, update its modules
         const section = updatedSections[sectionIndex];
         const modules = section.modules || [];
 
         newSection.modules.forEach((newModule) => {
           const moduleIndex = modules.findIndex(
-            (mod) => mod.moduleDocumentId === newModule.moduleDocumentId,
+            (mod) => mod.module?.documentId === newModule.moduleDocumentId,
           );
 
           if (moduleIndex > -1) {
@@ -189,7 +195,7 @@ const createOrUpdateCourseStatus = async (
           } else {
             // Add new module
             modules.push({
-              moduleDocumentId: newModule.moduleDocumentId,
+              module: { documentId: newModule.moduleDocumentId },
               progress: newModule.progress,
             });
           }
@@ -199,9 +205,9 @@ const createOrUpdateCourseStatus = async (
       } else {
         // Add new section
         updatedSections.push({
-          sectionDocumentId: newSection.sectionDocumentId,
+          section: { documentId: newSection.sectionDocumentId },
           modules: newSection.modules.map((mod) => ({
-            moduleDocumentId: mod.moduleDocumentId,
+            module: { documentId: mod.moduleDocumentId },
             progress: mod.progress,
           })),
         });
@@ -209,14 +215,14 @@ const createOrUpdateCourseStatus = async (
     });
 
     // Send the PUT request to update the course status
-    const response = await axios.put(`/course-statuses/${statusId}`, {
+    const response = await axios.put(`/course-statuses/${statusDocumentId}`, {
       data: {
-        course: data.courseDocumentId,
+        course: data.course,
         progress: data.progress,
-        section: updatedSections.map((section) => ({
-          section: section.sectionDocumentId,
+        sections: updatedSections.map((section) => ({
+          section: section.section.documentId,
           modules: section.modules.map((module) => ({
-            module: module.moduleDocumentId,
+            module: module.module.documentId,
             progress: module.progress,
           })),
         })),
@@ -225,14 +231,13 @@ const createOrUpdateCourseStatus = async (
 
     return response.data;
   } else {
-    console.log("the data for course status", data);
     // Create a new course status
     const response = await axios.post("/course-statuses", {
       data: {
-        course: data.courseDocumentId,
+        course: data.course,
         user: userId,
         progress: data.progress,
-        section: data.section.map((section) => ({
+        sections: data.sections.map((section) => ({
           section: section.sectionDocumentId,
           modules: section.modules.map((module) => ({
             module: module.moduleDocumentId,
