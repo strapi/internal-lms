@@ -48,14 +48,16 @@ const CoursesPage: React.FC = () => {
   // Filter courses based on selected category
   const filteredCourses = selectedCategory
     ? courses.filter((course: Course) =>
-        course.categories.some((category: Category) => category.id === selectedCategory),
+        course.categories.some(
+          (category: Category) => category.id === selectedCategory,
+        ),
       )
     : courses;
 
   return (
     <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-5">
       {/* Categories List */}
-      <div className="order-1 space-y-4 rounded-lg bg-gray-100 p-6 shadow-md md:order-2 md:col-span-1">
+      <div className="order-1 space-y-4 rounded-lg border bg-white p-6 shadow-md dark:bg-gray-950 md:order-2 md:col-span-1">
         <h2 className="mb-4 text-xl font-bold">Categories</h2>
         <ul className="space-y-4">
           <li>

@@ -69,11 +69,11 @@ const fetchCourseBySlug = async (slug: string): Promise<Course> => {
         categories: {
           fields: ["id", "title", "description"],
         },
-        section: {
+        sections: {
           fields: ["documentId", "name"],
           populate: {
             modules: {
-              fields: ["documentId", "title"],
+              fields: ["documentId", "title", "description"],
               populate: {
                 media: {
                   fields: [
@@ -162,6 +162,8 @@ const fetchUserCourseStatuses = async (): Promise<User> => {
 const createOrUpdateCourseStatus = async (
   data: CourseStatusInputData,
 ): Promise<UserCourseStatus> => {
+  console.log("the data we're sending", data);
+
   const authenticatedUser = await fetchUserCourseStatuses();
   const userId = authenticatedUser.id;
 
@@ -169,9 +171,15 @@ const createOrUpdateCourseStatus = async (
     (status) => status.course?.documentId === data.course,
   );
 
+  console.log("the existing course status", existingCourseStatus);
+
   if (existingCourseStatus) {
+    console.log("a course status already exists");
+
     const statusDocumentId = existingCourseStatus.documentId;
     const updatedSections = [...(existingCourseStatus.sections || [])];
+
+    console.log("the existing sections", updatedSections);
 
     // Handle sections and modules
     data.sections.forEach((newSection) => {
@@ -218,6 +226,7 @@ const createOrUpdateCourseStatus = async (
     const response = await axios.put(`/course-statuses/${statusDocumentId}`, {
       data: {
         course: data.course,
+        user: userId,
         progress: data.progress,
         sections: updatedSections.map((section) => ({
           section: section.section.documentId,
@@ -228,7 +237,6 @@ const createOrUpdateCourseStatus = async (
         })),
       },
     });
-
     return response.data;
   } else {
     // Create a new course status

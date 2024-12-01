@@ -17,7 +17,7 @@ import {
   createOrUpdateCourseStatus,
   fetchUserCourseStatuses,
 } from "@/lib/queries/appQueries";
-import { Course, UserCourseStatus } from "@/interfaces/course";
+import { Course, Module, Section, UserCourseStatus } from "@/interfaces/course";
 import { User as AuthUser } from "@/interfaces/auth";
 
 interface User extends AuthUser {
@@ -41,6 +41,8 @@ const SingleCourse: React.FC = () => {
     enabled: !!courseSlug,
   });
 
+  console.log("the course", course);
+
   const {
     data: authenticatedUser,
     isLoading: userLoading,
@@ -50,10 +52,10 @@ const SingleCourse: React.FC = () => {
     queryFn: fetchUserCourseStatuses,
   });
 
-  const [activeModuleDocumentId, setActiveModuleDocumentId] = useState<
+  const [activeSectionDocumentId, setActiveSectionDocumentId] = useState<
     string | null
   >(null);
-  const [activeSectionDocumentId, setActiveSectionDocumentId] = useState<
+  const [activeModuleDocumentId, setActiveModuleDocumentId] = useState<
     string | null
   >(null);
   const [moduleProgress, setModuleProgress] = useState<Record<string, number>>(
@@ -74,6 +76,8 @@ const SingleCourse: React.FC = () => {
         (status) => status.course?.documentId === course.documentId,
       );
 
+      console.log("the courseStatus", courseStatus);
+
       const progressMap: Record<string, number> = {};
       let nextModuleDocumentId: string | null = null;
       let nextSectionDocumentId: string | null = null;
@@ -92,16 +96,21 @@ const SingleCourse: React.FC = () => {
         });
       }
 
+      console.log("Setting moduleProgress:", progressMap);
       setModuleProgress(progressMap);
 
       if (nextModuleDocumentId) {
         setActiveModuleDocumentId(nextModuleDocumentId);
         setActiveSectionDocumentId(nextSectionDocumentId);
-      } else if (course.section.length > 0) {
-        const firstSection = course.section[0];
-        setActiveSectionDocumentId(firstSection.documentId);
-        if (firstSection.modules.length > 0) {
-          setActiveModuleDocumentId(firstSection.modules[0].documentId);
+      } else {
+        // If no next module is found (user hasn't started or has completed all modules)
+        // Set to the first module of the first section
+        if (course.sections.length > 0) {
+          const firstSection = course.sections[0];
+          setActiveSectionDocumentId(firstSection.documentId);
+          if (firstSection.modules.length > 0) {
+            setActiveModuleDocumentId(firstSection.modules[0].documentId);
+          }
         }
       }
     }
@@ -116,8 +125,8 @@ const SingleCourse: React.FC = () => {
 
       if (duration > 0) {
         const progress = Math.min(
-          Math.floor((currentTime / duration) * 100),
-          100,
+          Math.floor((currentTime / duration) * 99),
+          99,
         );
 
         setModuleProgress((prev) => ({
@@ -134,7 +143,14 @@ const SingleCourse: React.FC = () => {
   // Update module and course progress
   const handleVideoEnd = () => {
     if (activeModuleDocumentId && course) {
-      const section = course.section.find((section) =>
+      // Set module progress to 100% when video ends
+      setModuleProgress((prev) => ({
+        ...prev,
+        [activeModuleDocumentId]: 100,
+      }));
+
+      // Proceed to update course status
+      const section = course.sections.find((section) =>
         section.modules.some(
           (module) => module.documentId === activeModuleDocumentId,
         ),
@@ -148,16 +164,19 @@ const SingleCourse: React.FC = () => {
 
       if (!module) return;
 
-      const moduleProgressValue = moduleProgress[activeModuleDocumentId] || 0;
-
-      const totalModules = course.section.reduce(
+      // Update the course status with the new progres  s
+      const totalModules = course.sections.reduce(
         (total, section) => total + section.modules.length,
         0,
       );
 
-      const overallProgress =
-        Object.values(moduleProgress).reduce((a, b) => a + b, 0) /
-          totalModules || 0;
+      const totalProgress = Object.values(moduleProgress).reduce(
+        (a, b) => a + b,
+        0,
+      );
+      const overallProgress = totalProgress / totalModules;
+
+      console.log("module progress after video end", moduleProgress);
 
       updateCourseStatus({
         course: course.documentId,
@@ -168,7 +187,7 @@ const SingleCourse: React.FC = () => {
             modules: [
               {
                 moduleDocumentId: module.documentId,
-                progress: moduleProgressValue,
+                progress: 100,
               },
             ],
           },
@@ -184,56 +203,59 @@ const SingleCourse: React.FC = () => {
     );
   if (!course) return <div>No course data available.</div>;
 
-  const activeModule = course.section
+  const activeModule = course.sections
     ?.flatMap((section) => section.modules)
     .find((module) => module.documentId === activeModuleDocumentId);
 
   const poster = IMAGE_URL + (course.thumbnail?.url || "");
 
   return (
-    <div className="flex h-[calc(100vh-56px)] w-full">
+    <div className="flex w-full gap-4">
       {/* Video Section */}
-      <div className="flex w-[80%] flex-col">
-        <div className="h-[70%] flex-1 overflow-hidden rounded-r-lg px-8">
-          <div className="relative h-full w-full">
-            <div className="absolute inset-0 overflow-hidden">
-              {activeModule?.media?.playback_id ? (
-                <MuxPlayer
-                  ref={playerRef}
-                  playbackId={activeModule.media.playback_id}
-                  metadata={{
-                    video_id: `mux-video-${activeModule.media.playback_id}`,
-                    video_title: activeModule.title,
-                  }}
-                  poster={poster}
-                  className="h-full w-full"
-                  onTimeUpdate={handleTimeUpdate}
-                  onEnded={handleVideoEnd}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-black text-white">
-                  <p>No video available</p>
-                </div>
-              )}
+      <div className="flex w-[70%] flex-col">
+        <div className="aspect-video rounded-lg">
+          {activeModule?.media?.playback_id ? (
+            <MuxPlayer
+              ref={playerRef}
+              playbackId={activeModule.media.playback_id}
+              metadata={{
+                video_id: `mux-video-${activeModule.media.playback_id}`,
+                video_title: activeModule.title,
+              }}
+              poster={poster}
+              className="h-full w-full"
+              onTimeUpdate={handleTimeUpdate}
+              onEnded={handleVideoEnd}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-black text-white">
+              <p>No video available</p>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-4 text-white backdrop-blur-sm">
-              <h3 className="text-lg font-bold">{course.title}</h3>
-              <p className="text-sm">
-                {activeModule?.title || "Select a module to view"}
-              </p>
-            </div>
-          </div>
+          )}
         </div>
-        <div className="mt-8 px-8">
+
+        <div className="mt-8">
+          <h1 className="text-xl font-bold">{course.title}</h1>
+          <p className="text-md mb-6">
+            {activeModule?.title || "Select a module to view"}
+          </p>
           <BlocksRenderer content={course.description} />
         </div>
       </div>
 
       {/* Sidebar Section */}
-      <div className="flex w-[20%] flex-col overflow-hidden rounded-l-lg bg-white p-6 dark:bg-gray-950">
+      <div className="flex w-[30%] flex-col overflow-hidden rounded-lg border bg-white p-6 dark:bg-gray-950">
         <h2 className="text-lg font-semibold">{course.title}</h2>
-        <Accordion type="single" collapsible className="flex-1">
-          {course.section?.map((section) => {
+        <Accordion
+          type="single"
+          collapsible
+          className="flex-1"
+          value={activeSectionDocumentId || undefined}
+          onValueChange={(value) => {
+            setActiveSectionDocumentId(value || null);
+          }}
+        >
+          {course.sections?.map((section: Section) => {
             const totalModules = section.modules.length;
             const completedModules = section.modules.filter(
               (module) => moduleProgress[module.documentId] === 100,
@@ -242,8 +264,7 @@ const SingleCourse: React.FC = () => {
             return (
               <AccordionItem
                 key={section.documentId}
-                value={`section-${section.documentId}`}
-                open={section.documentId === activeSectionDocumentId}
+                value={section.documentId}
               >
                 <AccordionTrigger className="flex items-center justify-between">
                   <h3 className="text-md font-semibold">{section.name}</h3>
@@ -251,13 +272,13 @@ const SingleCourse: React.FC = () => {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
-                    {section.modules.map((module) => (
+                    {section.modules.map((module: Module) => (
                       <div
                         key={module.documentId}
                         className={`flex cursor-pointer items-center gap-2 p-2 ${
                           activeModuleDocumentId === module.documentId
-                            ? "border-4 border-double"
-                            : ""
+                            ? "bg-blue-500 text-white"
+                            : "bg-white text-black"
                         }`}
                         onClick={() => {
                           setActiveModuleDocumentId(module.documentId);
@@ -267,7 +288,12 @@ const SingleCourse: React.FC = () => {
                         <Checkbox
                           checked={moduleProgress[module.documentId] === 100}
                         />
-                        <span>{module.title}</span>
+                        <div className="flex-col flex">
+                          <h4 className="text-sm font-semibold">
+                            {module.title}
+                          </h4>
+                          {module.description && <p>{module.description}</p>}
+                        </div>
                       </div>
                     ))}
                   </div>

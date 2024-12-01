@@ -66,6 +66,7 @@ export interface MuxAsset {
 export interface Module {
   id: number;
   title: string;
+  description: string;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -100,7 +101,7 @@ export interface Course {
   thumbnail?: Image;
   categories: Category[];
   authors: Author[];
-  section: Section[];
+  sections: Section[];
 }
 
 // ModuleStatus interface for tracking module progress in CourseStatusData
@@ -147,7 +148,7 @@ export interface CourseStatusInputData {
 }
 
 export interface UserModule {
-  id?: number; // Optional because it might not be present when creating new entries
+  id?: number;
   progress: number;
   module: {
     id?: number;

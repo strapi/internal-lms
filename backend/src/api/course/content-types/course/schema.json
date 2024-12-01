@@ -45,7 +45,7 @@
       "relation": "oneToMany",
       "target": "api::category.category"
     },
-    "section": {
+    "sections": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::section.section"

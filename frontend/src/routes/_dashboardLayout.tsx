@@ -52,7 +52,7 @@ export const DashboardLayout: React.FC = () => {
         </div>
       </div>
       <hr />
-      <main className="p-2">
+      <main className="p-4">
         <Outlet />
       </main>
     </div>
