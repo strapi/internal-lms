@@ -38,8 +38,19 @@ const fetchCategories = async (): Promise<Category[]> => {
 const fetchCourses = async (): Promise<Course[]> => {
   const query = qs.stringify(
     {
-      fields: ["slug", "title", "description"],
-      populate: "*",
+      fields: ["slug", "title", "description", "synopsis"],
+      populate: {
+        thumbnail: {
+          populate: "*",
+        },
+        sections: {
+          populate: {
+            modules: {
+              populate: "*",
+            },
+          },
+        },
+      },
     },
     { encodeValuesOnly: true },
   );

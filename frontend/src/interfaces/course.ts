@@ -98,6 +98,7 @@ export interface Course {
   title: string;
   slug: string;
   description: BlocksContent;
+  synopsis?: string;
   thumbnail?: Image;
   categories: Category[];
   authors: Author[];
@@ -141,7 +142,7 @@ export interface SectionProgress {
 
 // CourseStatusInputData interface for input
 export interface CourseStatusInputData {
-  course: string; // courseDocumentId
+  course: string;
   user?: number;
   progress: number;
   sections: SectionProgress[];

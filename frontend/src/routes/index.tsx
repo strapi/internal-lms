@@ -1,5 +1,5 @@
 import { getAuthData } from "@/hooks/getAuthData";
-import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {

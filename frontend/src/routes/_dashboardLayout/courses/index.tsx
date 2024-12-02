@@ -3,8 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CourseCards } from "@/components/CourseCards";
 import { Category, Course } from "@/interfaces/course";
-import { fetchCategories, fetchCourses } from "@/lib/queries/appQueries";
+import {
+  fetchCategories,
+  fetchCourses,
+  fetchUserCourseStatuses,
+} from "@/lib/queries/appQueries";
 import { cn } from "@/lib/utils";
+import { UserCourseStatus } from "@/interfaces/course";
+import { User } from "@/interfaces/auth";
 
 export const Route = createFileRoute("/_dashboardLayout/courses/")({
   component: () => <CoursesPage />,
@@ -31,12 +37,19 @@ const CoursesPage: React.FC = () => {
     queryFn: fetchCourses,
   });
 
-  // Handle loading states
-  if (isCategoriesLoading || isCoursesLoading) {
+  const {
+    data: user = null,
+    isLoading: isCourseStatusesLoading,
+    error: courseStatusesError,
+  } = useQuery<User>({
+    queryKey: ["userCourseStatuses"],
+    queryFn: fetchUserCourseStatuses,
+  });
+
+  if (isCategoriesLoading || isCoursesLoading || isCourseStatusesLoading) {
     return <div>Loading...</div>;
   }
 
-  // Handle error states
   if (categoriesError) {
     return <div>Error loading categories: {categoriesError.message}</div>;
   }
@@ -45,19 +58,67 @@ const CoursesPage: React.FC = () => {
     return <div>Error loading courses: {coursesError.message}</div>;
   }
 
-  // Filter courses based on selected category
+  if (courseStatusesError) {
+    return (
+      <div>Error loading course statuses: {courseStatusesError.message}</div>
+    );
+  }
+
+  const courseStatuses: UserCourseStatus[] = user?.courseStatuses || [];
+
+  const courseStatusMap = new Map<string, UserCourseStatus>();
+
+  courseStatuses.forEach((courseStatus: UserCourseStatus) => {
+    const courseDocId = courseStatus.course.documentId;
+    courseStatusMap.set(courseDocId, courseStatus);
+  });
+
+  interface CourseWithProgress extends Course {
+    progress: number;
+  }
+
+  const processedCourses: CourseWithProgress[] = courses.map((course) => {
+    const courseStatus = courseStatusMap.get(course.documentId);
+
+    const totalModules =
+      course.sections?.reduce(
+        (count, section) => count + (section.modules?.length || 0),
+        0,
+      ) || 0;
+
+    let completedModules = 0;
+
+    if (courseStatus?.sections) {
+      courseStatus.sections.forEach((sectionStatus) => {
+        sectionStatus.modules?.forEach((moduleStatus) => {
+          if (moduleStatus.progress === 100) {
+            completedModules += 1;
+          }
+        });
+      });
+    }
+
+    const progress =
+      totalModules > 0 ? (completedModules / totalModules) * 100 : 0;
+
+    return {
+      ...course,
+      progress,
+    };
+  });
+
   const filteredCourses = selectedCategory
-    ? courses.filter((course: Course) =>
+    ? processedCourses.filter((course: CourseWithProgress) =>
         course.categories.some(
           (category: Category) => category.id === selectedCategory,
         ),
       )
-    : courses;
+    : processedCourses;
 
   return (
-    <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
       {/* Categories List */}
-      <div className="order-1 space-y-4 rounded-lg border bg-white p-6 shadow-md dark:bg-gray-950 md:order-2 md:col-span-1">
+      <div className="order-1 space-y-4 rounded-lg border bg-white p-6 shadow-md dark:bg-gray-800 md:order-2 md:col-span-1">
         <h2 className="mb-4 text-xl font-bold">Categories</h2>
         <ul className="space-y-4">
           <li>
@@ -92,7 +153,7 @@ const CoursesPage: React.FC = () => {
       </div>
       {/* CourseCards */}
       <div className="order-2 md:order-1 md:col-span-4">
-        <CourseCards courses={filteredCourses} showProgress={false} />
+        <CourseCards courses={filteredCourses} showProgress={true} />
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
 
 const SingleCourse: React.FC = () => {
   const { courseSlug } = useParams({
-    from: "/_dashboardLayout/courses/course/$courseSlug",
+    from: "/_dashboardLayout/courses/$courseSlug",
   });
 
   const {
@@ -308,7 +308,7 @@ const SingleCourse: React.FC = () => {
 };
 
 export const Route = createFileRoute(
-  "/_dashboardLayout/courses/course/$courseSlug",
+  "/_dashboardLayout/courses/$courseSlug",
 )({
   component: SingleCourse,
 });

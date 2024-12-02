@@ -53,6 +53,9 @@
     "slug": {
       "type": "uid",
       "targetField": "title"
+    },
+    "synopsis": {
+      "type": "text"
     }
   }
 }

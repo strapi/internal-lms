@@ -18,9 +18,9 @@ import { Route as AuthIndexImport } from './routes/auth/index'
 import { Route as DashboardLayoutDashboardIndexImport } from './routes/_dashboardLayout/dashboard/index'
 import { Route as DashboardLayoutCoursesIndexImport } from './routes/_dashboardLayout/courses/index'
 import { Route as AuthCallbackProviderIdImport } from './routes/auth.callback.$providerId'
+import { Route as DashboardLayoutCoursesCourseSlugImport } from './routes/_dashboardLayout/courses/$courseSlug'
 import { Route as DashboardLayoutUserSettingsImport } from './routes/_dashboardLayout/_user/settings'
 import { Route as DashboardLayoutUserProfileImport } from './routes/_dashboardLayout/_user/profile'
-import { Route as DashboardLayoutCoursesCourseCourseSlugImport } from './routes/_dashboardLayout/courses/course/$courseSlug'
 
 // Create/Update Routes
 
@@ -61,6 +61,12 @@ const AuthCallbackProviderIdRoute = AuthCallbackProviderIdImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
+const DashboardLayoutCoursesCourseSlugRoute =
+  DashboardLayoutCoursesCourseSlugImport.update({
+    path: '/courses/$courseSlug',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+
 const DashboardLayoutUserSettingsRoute =
   DashboardLayoutUserSettingsImport.update({
     path: '/settings',
@@ -73,12 +79,6 @@ const DashboardLayoutUserProfileRoute = DashboardLayoutUserProfileImport.update(
     getParentRoute: () => DashboardLayoutRoute,
   } as any,
 )
-
-const DashboardLayoutCoursesCourseCourseSlugRoute =
-  DashboardLayoutCoursesCourseCourseSlugImport.update({
-    path: '/courses/course/$courseSlug',
-    getParentRoute: () => DashboardLayoutRoute,
-  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -126,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLayoutUserSettingsImport
       parentRoute: typeof DashboardLayoutImport
     }
+    '/_dashboardLayout/courses/$courseSlug': {
+      id: '/_dashboardLayout/courses/$courseSlug'
+      path: '/courses/$courseSlug'
+      fullPath: '/courses/$courseSlug'
+      preLoaderRoute: typeof DashboardLayoutCoursesCourseSlugImport
+      parentRoute: typeof DashboardLayoutImport
+    }
     '/auth/callback/$providerId': {
       id: '/auth/callback/$providerId'
       path: '/callback/$providerId'
@@ -147,13 +154,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLayoutDashboardIndexImport
       parentRoute: typeof DashboardLayoutImport
     }
-    '/_dashboardLayout/courses/course/$courseSlug': {
-      id: '/_dashboardLayout/courses/course/$courseSlug'
-      path: '/courses/course/$courseSlug'
-      fullPath: '/courses/course/$courseSlug'
-      preLoaderRoute: typeof DashboardLayoutCoursesCourseCourseSlugImport
-      parentRoute: typeof DashboardLayoutImport
-    }
   }
 }
 
@@ -164,9 +164,9 @@ export const routeTree = rootRoute.addChildren({
   DashboardLayoutRoute: DashboardLayoutRoute.addChildren({
     DashboardLayoutUserProfileRoute,
     DashboardLayoutUserSettingsRoute,
+    DashboardLayoutCoursesCourseSlugRoute,
     DashboardLayoutCoursesIndexRoute,
     DashboardLayoutDashboardIndexRoute,
-    DashboardLayoutCoursesCourseCourseSlugRoute,
   }),
   AuthRoute: AuthRoute.addChildren({
     AuthIndexRoute,
@@ -195,9 +195,9 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/_dashboardLayout/_user/profile",
         "/_dashboardLayout/_user/settings",
+        "/_dashboardLayout/courses/$courseSlug",
         "/_dashboardLayout/courses/",
-        "/_dashboardLayout/dashboard/",
-        "/_dashboardLayout/courses/course/$courseSlug"
+        "/_dashboardLayout/dashboard/"
       ]
     },
     "/auth": {
@@ -219,6 +219,10 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_dashboardLayout/_user/settings.tsx",
       "parent": "/_dashboardLayout"
     },
+    "/_dashboardLayout/courses/$courseSlug": {
+      "filePath": "_dashboardLayout/courses/$courseSlug.tsx",
+      "parent": "/_dashboardLayout"
+    },
     "/auth/callback/$providerId": {
       "filePath": "auth.callback.$providerId.tsx",
       "parent": "/auth"
@@ -229,10 +233,6 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_dashboardLayout/dashboard/": {
       "filePath": "_dashboardLayout/dashboard/index.tsx",
-      "parent": "/_dashboardLayout"
-    },
-    "/_dashboardLayout/courses/course/$courseSlug": {
-      "filePath": "_dashboardLayout/courses/course/$courseSlug.tsx",
       "parent": "/_dashboardLayout"
     }
   }
