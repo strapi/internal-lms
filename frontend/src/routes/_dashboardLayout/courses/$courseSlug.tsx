@@ -15,13 +15,9 @@ import {
   createOrUpdateCourseStatus,
   fetchUserData,
 } from "@/lib/queries/appQueries";
-import { Course, Module, Section, UserCourseStatus } from "@/interfaces/course";
-import { User as AuthUser } from "@/interfaces/auth";
+import { Course, Module, Section } from "@/interfaces/course";
+import { User } from "@/interfaces/auth";
 import { Star, StarOff } from "lucide-react";
-
-interface User extends AuthUser {
-  courseStatuses?: UserCourseStatus[];
-}
 
 const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
 

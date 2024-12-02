@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CourseCards } from "@/components/CourseCards";
-import { Course, Category } from "@/interfaces/course";
+import { Course } from "@/interfaces/course";
 import {
   fetchCategories,
   fetchCourses,
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_dashboardLayout/courses/")({
 });
 
 const CoursesPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
 
   const {
@@ -101,11 +101,6 @@ const CoursesPage: React.FC = () => {
       isFavourite,
     };
   });
-
-  // Filter courses by favorites
-  const favoriteCourses = processedCourses.filter(
-    (course) => course.isFavourite,
-  );
 
   // Filter courses by category
   const filteredCourses = processedCourses.filter((course) => {

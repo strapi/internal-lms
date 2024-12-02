@@ -5,152 +5,89 @@ import {
   Course,
   CourseStatusInputData,
   UserCourseStatus,
+  ModuleProgress,
+  SectionProgress,
 } from "@/interfaces/course";
-import { User as AuthUser } from "@/interfaces/auth";
-
-export interface User extends AuthUser {
-  courseStatuses?: UserCourseStatus[];
-}
-const fetchHomePageData = async () => {
-  return axios.get("/courses");
-};
+import { User } from "@/interfaces/auth";
 
 /**
  * Fetches categories from the Strapi API.
  * @returns {Promise<Category[]>} A promise that resolves to an array of categories.
  */
-const fetchCategories = async (): Promise<Category[]> => {
-  const query = qs.stringify(
-    {
-      fields: ["documentId", "title", "description"],
-    },
-    { encodeValuesOnly: true },
-  );
-
-  const response = await axios.get(`/categories?${query}`);
-  return response.data.data;
+export const fetchCategories = async (): Promise<Category[]> => {
+  try {
+    const query = qs.stringify(
+      { fields: ["documentId", "title", "description"] },
+      { encodeValuesOnly: true },
+    );
+    const response = await axios.get(`/categories?${query}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    throw error;
+  }
 };
 
 /**
  * Fetches courses from the Strapi API.
  * @returns {Promise<Course[]>} A promise that resolves to an array of courses.
  */
-const fetchCourses = async (): Promise<Course[]> => {
-  const query = qs.stringify(
-    {
-      fields: ["slug", "title", "description", "synopsis"],
-      populate: {
-        thumbnail: {
-          populate: "*",
-        },
-        categories: {
-          populate: "*",
-        },
-        sections: {
-          populate: {
-            modules: {
-              populate: "*",
+export const fetchCourses = async (): Promise<Course[]> => {
+  try {
+    const query = qs.stringify(
+      {
+        fields: ["slug", "title", "description", "synopsis"],
+        populate: {
+          thumbnail: { populate: "*" },
+          categories: { populate: "*" },
+          sections: {
+            populate: {
+              modules: { populate: "*" },
             },
           },
         },
       },
-    },
-    { encodeValuesOnly: true },
-  );
-
-  const response = await axios.get(`/courses?${query}`);
-  return response.data.data;
+      { encodeValuesOnly: true },
+    );
+    const response = await axios.get(`/courses?${query}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    throw error;
+  }
 };
 
 /**
- * Fetches a single course by its ID from the Strapi API.
+ * Fetches a single course by its slug.
  * @param {string} slug - The slug of the course to fetch.
  * @returns {Promise<Course>} A promise that resolves to the course data.
  */
-const fetchCourseBySlug = async (slug: string): Promise<Course> => {
-  const query = qs.stringify(
-    {
-      filters: {
-        slug: {
-          $eq: slug,
-        },
-      },
-      fields: ["title", "description", "slug", "documentId"],
-      populate: {
-        thumbnail: {
-          fields: ["url", "alternativeText", "caption", "width", "height"],
-        },
-        categories: {
-          fields: ["id", "title", "description"],
-        },
-        sections: {
-          fields: ["documentId", "name"],
-          populate: {
-            modules: {
-              fields: ["documentId", "title", "description"],
-              populate: {
-                media: {
-                  fields: [
-                    "id",
-                    "title",
-                    "playback_id",
-                    "asset_id",
-                    "duration",
-                    "isReady",
-                  ],
-                },
-              },
-            },
+export const fetchCourseBySlug = async (slug: string): Promise<Course> => {
+  try {
+    const query = qs.stringify(
+      {
+        filters: { slug: { $eq: slug } },
+        fields: ["title", "description", "slug", "documentId"],
+        populate: {
+          thumbnail: {
+            fields: ["url", "alternativeText", "caption", "width", "height"],
           },
-        },
-      },
-    },
-    { encodeValuesOnly: true },
-  );
-
-  const response = await axios.get(`/courses?${query}`);
-  const courseData = response.data.data[0];
-
-  if (!courseData) {
-    throw new Error(`Course with slug '${slug}' not found.`);
-  }
-
-  return courseData;
-};
-
-/**
- * Fetches the current authenticated user's details.
- * @returns {Promise<User>} A promise that resolves to the user details.
- */
-const fetchAuthenticatedUser = async (): Promise<User> => {
-  const response = await axios.get("/users/me");
-  return response.data;
-};
-
-/**
- * Fetches the current authenticated user's details, including courseStatuses.
- * @returns {Promise<UserCourseStatus>} A promise that resolves to the user details.
- */
-const fetchUserData = async (): Promise<User> => {
-  const query = qs.stringify(
-    {
-      populate: {
-        courseStatuses: {
-          populate: {
-            fields: ["isFavourite"],
-            course: {
-              fields: ["documentId"],
-            },
-            sections: {
-              populate: {
-                section: {
-                  fields: ["documentId"],
-                },
-                modules: {
-                  populate: {
-                    module: {
-                      fields: ["documentId"],
-                    },
+          categories: { fields: ["id", "title", "description"] },
+          sections: {
+            fields: ["documentId", "name"],
+            populate: {
+              modules: {
+                fields: ["documentId", "title", "description"],
+                populate: {
+                  media: {
+                    fields: [
+                      "id",
+                      "title",
+                      "playback_id",
+                      "asset_id",
+                      "duration",
+                      "isReady",
+                    ],
                   },
                 },
               },
@@ -158,55 +95,113 @@ const fetchUserData = async (): Promise<User> => {
           },
         },
       },
-    },
-    { encodeValuesOnly: true },
-  );
+      { encodeValuesOnly: true },
+    );
 
-  const response = await axios.get(`/users/me?${query}`);
-  return response.data;
+    const response = await axios.get(`/courses?${query}`);
+    const courseData = response.data.data[0];
+
+    if (!courseData) {
+      throw new Error(`Course with slug '${slug}' not found.`);
+    }
+
+    return courseData;
+  } catch (error) {
+    console.error(`Error fetching course with slug '${slug}':`, error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches the authenticated user's details.
+ * @returns {Promise<User>} A promise that resolves to the user details.
+ */
+export const fetchAuthenticatedUser = async (): Promise<User> => {
+  try {
+    const response = await axios.get("/users/me");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching authenticated user:", error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches the authenticated user's details, including course statuses.
+ * @returns {Promise<User>} A promise that resolves to the user details.
+ */
+export const fetchUserData = async (): Promise<User> => {
+  try {
+    const query = qs.stringify(
+      {
+        populate: {
+          courseStatuses: {
+            populate: {
+              fields: ["isFavourite"],
+              course: { fields: ["documentId"] },
+              sections: {
+                populate: {
+                  section: { fields: ["documentId"] },
+                  modules: { populate: { module: { fields: ["documentId"] } } },
+                },
+              },
+            },
+          },
+        },
+      },
+      { encodeValuesOnly: true },
+    );
+
+    const response = await axios.get(`/users/me?${query}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    throw error;
+  }
 };
 
 /**
  * Creates or updates a course status for the authenticated user.
- * @param {Object} data - The data to send.
- * @param {CourseSimple} data.course - The course information.
- * @param {number} data.progress - The progress percentage (0–100).
- * @param {SectionStatus} data.section - The section and module progress data.
- * @returns {Promise<UserCourseStatus>} The response from the API.
+ * @param {CourseStatusInputData} data - Data to create or update the course status.
+ * @returns {Promise<UserCourseStatus>} The updated or created course status.
  */
-const createOrUpdateCourseStatus = async (
+export const createOrUpdateCourseStatus = async (
   data: CourseStatusInputData,
 ): Promise<UserCourseStatus> => {
-  const authenticatedUser = await fetchUserData();
-  const userId = authenticatedUser.id;
+  try {
+    const user = await fetchUserData();
+    const existingStatus = user.courseStatuses?.find(
+      (status) => status.course.documentId === data.course,
+    );
 
-  const existingCourseStatus = authenticatedUser.courseStatuses?.find(
-    (status) => status.course?.documentId === data.course,
-  );
+    const updatedSections = existingStatus?.sections
+      ? [...existingStatus.sections]
+      : [];
 
-  if (existingCourseStatus) {
-    const statusDocumentId = existingCourseStatus.documentId;
-    const updatedSections = [...(existingCourseStatus.sections || [])];
-
+    // If there are new sections to update, merge them with the existing ones
     if (data.sections) {
       data.sections.forEach((newSection) => {
         const sectionIndex = updatedSections.findIndex(
-          (section) =>
-            section.section.documentId === newSection.sectionDocumentId,
+          (existingSection) =>
+            existingSection.section.documentId === newSection.sectionDocumentId,
         );
 
         if (sectionIndex > -1) {
+          // Update existing section
           const section = updatedSections[sectionIndex];
           const modules = section.modules || [];
 
+          // Merge modules
           newSection.modules.forEach((newModule) => {
             const moduleIndex = modules.findIndex(
-              (mod) => mod.module?.documentId === newModule.moduleDocumentId,
+              (mod) => mod.module.documentId === newModule.moduleDocumentId,
             );
 
             if (moduleIndex > -1) {
+              // Update progress for existing module
               modules[moduleIndex].progress = newModule.progress;
             } else {
+              // Add new module
               modules.push({
                 module: { documentId: newModule.moduleDocumentId },
                 progress: newModule.progress,
@@ -214,8 +209,10 @@ const createOrUpdateCourseStatus = async (
             }
           });
 
+          // Update the section modules
           section.modules = modules;
         } else {
+          // Add new section
           updatedSections.push({
             section: { documentId: newSection.sectionDocumentId },
             modules: newSection.modules.map((mod) => ({
@@ -227,50 +224,31 @@ const createOrUpdateCourseStatus = async (
       });
     }
 
-    const response = await axios.put(`/course-statuses/${statusDocumentId}`, {
-      data: {
-        course: data.course,
-        user: userId,
-        progress: data.progress || existingCourseStatus.progress,
-        isFavourite: data.isFavourite ?? existingCourseStatus.isFavourite,
-        sections: updatedSections.map((section) => ({
-          section: section.section.documentId,
-          modules: section.modules.map((module) => ({
-            module: module.module.documentId,
-            progress: module.progress,
-          })),
+    // Prepare the request body
+    const requestBody = {
+      course: data.course,
+      user: user.id,
+      progress: data.progress ?? (existingStatus?.progress || 0),
+      isFavourite: data.isFavourite ?? (existingStatus?.isFavourite || false),
+      sections: updatedSections.map((section) => ({
+        section: section.section.documentId,
+        modules: section.modules.map((module) => ({
+          module: module.module.documentId,
+          progress: module.progress,
         })),
-      },
-    });
-    return response.data;
-  } else {
-    const response = await axios.post("/course-statuses", {
-      data: {
-        course: data.course,
-        user: userId,
-        progress: data.progress || 0,
-        isFavourite: data.isFavourite || false,
-        sections:
-          data.sections?.map((section) => ({
-            section: section.sectionDocumentId,
-            modules: section.modules.map((module) => ({
-              module: module.moduleDocumentId,
-              progress: module.progress,
-            })),
-          })) || [],
-      },
-    });
+      })),
+    };
+
+    // Update or create course status
+    const response = existingStatus
+      ? await axios.put(`/course-statuses/${existingStatus.documentId}`, {
+          data: requestBody,
+        })
+      : await axios.post("/course-statuses", { data: requestBody });
 
     return response.data;
+  } catch (error) {
+    console.error("Error creating or updating course status:", error);
+    throw error;
   }
-};
-
-export {
-  fetchAuthenticatedUser,
-  fetchUserData,
-  fetchCategories,
-  fetchCourses,
-  fetchHomePageData,
-  fetchCourseBySlug,
-  createOrUpdateCourseStatus,
 };

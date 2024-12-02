@@ -1,100 +1,35 @@
 import { type BlocksContent } from "@strapi/blocks-react-renderer";
+import { BaseEntity, Image, Media } from "./shared";
 
-// Category interface
-export interface Category {
-  id: string;
+// Category
+export interface Category extends BaseEntity {
   title: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  documentId: string;
 }
 
-// Image interface
-export interface Image {
-  id: string;
-  name: string;
-  alternativeText: string | null;
-  caption: string | null;
-  width: number | null;
-  height: number | null;
-  hash: string;
-  ext: string;
-  mime: string;
-  size: number;
-  url: string;
-  previewUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
-  documentId: string;
-  publishedAt: string;
-}
-
-// Author interface
-export interface Author {
-  id: string;
+// Author
+export interface Author extends BaseEntity {
   firstname: string;
   lastname: string;
-  username: string | null;
-  preferedLanguage: string | null;
-  createdAt: string;
-  updatedAt: string;
-  documentId: string;
-  publishedAt: string;
+  username?: string;
+  preferredLanguage?: string;
 }
 
-// MuxAsset interface
-export interface MuxAsset {
-  id: number;
-  title: string;
-  upload_id: string;
-  playback_id: string | null;
-  asset_id: string | null;
-  signed: boolean;
-  error_message: string | null;
-  isReady: boolean;
-  duration: number | null;
-  aspect_ratio: string | null;
-  createdAt: string;
-  updatedAt: string;
-  documentId: string;
-  publishedAt: string;
-}
-
-// Module interface
-export interface Module {
-  id: number;
+// Module
+export interface Module extends BaseEntity {
   title: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  documentId: string;
-  media?: MuxAsset;
+  media?: Media;
 }
 
-// Section interface
-export interface Section {
-  id: number;
+// Section
+export interface Section extends BaseEntity {
   name: string;
   modules: Module[];
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  documentId: string;
 }
 
-// TextNode interface for paragraphs
-export interface TextNode {
-  type: string;
-  text: string;
-}
-
-// Course interface
-export interface Course {
-  id: number;
-  documentId: string;
+// Course
+export interface Course extends BaseEntity {
   title: string;
   slug: string;
   description: BlocksContent;
@@ -105,42 +40,32 @@ export interface Course {
   sections: Section[];
 }
 
-// ModuleStatus interface for tracking module progress in CourseStatusData
-export interface SectionInfo {
-  documentId: string;
-  name?: string;
-}
-
-// ModuleStatus interface
+// Progress Tracking
 export interface ModuleStatus {
-  id?: number; // Made optional
+  id?: number;
   progress: number;
   module: {
-    id?: number; // Made optional
+    id?: number;
     documentId: string;
   };
 }
 
-// SectionStatus interface
 export interface SectionStatus {
-  id?: number; // Made optional
+  id?: number;
   documentId: string;
   modules: ModuleStatus[];
 }
 
-// ModuleProgress interface for input
 export interface ModuleProgress {
   moduleDocumentId: string;
   progress: number;
 }
 
-// SectionProgress interface for input
 export interface SectionProgress {
   sectionDocumentId: string;
   modules: ModuleProgress[];
 }
 
-// CourseStatusInputData interface for input
 export interface CourseStatusInputData {
   course: string;
   user?: number;
@@ -149,6 +74,7 @@ export interface CourseStatusInputData {
   sections?: SectionProgress[];
 }
 
+// User-Specific Course Status
 export interface UserModule {
   id?: number;
   progress: number;
@@ -177,4 +103,14 @@ export interface UserCourseStatus {
     documentId: string;
   };
   sections: UserSection[];
+}
+
+export interface CourseWithProgress extends Course {
+  progress: number;
+  isFavourite?: boolean;
+}
+
+export interface CourseCardsProps {
+  courses: CourseWithProgress[];
+  showProgress?: boolean;
 }

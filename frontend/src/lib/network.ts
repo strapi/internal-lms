@@ -28,7 +28,7 @@ axiosInstance.interceptors.response.use(
       (error.response.status === 401 || error.response.status === 403)
     ) {
       // Redirect to the authentication page if unauthorized
-      throw redirect({ to: "/auth" });
+      throw redirect({ to: "/login" });
     }
     return Promise.reject(error);
   },

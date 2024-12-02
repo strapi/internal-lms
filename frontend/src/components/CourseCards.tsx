@@ -1,21 +1,15 @@
 import { Card } from "@/components/ui/card";
-import { Course } from "@/interfaces/course";
+import { User } from "@/interfaces/auth";
+import {
+  CourseCardsProps,
+  UserCourseStatus,
+} from "@/interfaces/course";
 import { createOrUpdateCourseStatus } from "@/lib/queries/appQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Check, Play, Star, StarOff } from "lucide-react";
 
 const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
-
-interface CourseWithProgress extends Course {
-  progress: number;
-  isFavourite?: boolean;
-}
-
-interface CourseCardsProps {
-  courses: CourseWithProgress[];
-  showProgress?: boolean;
-}
 
 export const CourseCards: React.FC<CourseCardsProps> = ({
   courses,
@@ -37,8 +31,34 @@ export const CourseCards: React.FC<CourseCardsProps> = ({
         progress: 0,
         sections: [],
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userCourseData"] });
+    onMutate: async ({ courseDocumentId, isFavourite }) => {
+      // Cancel any ongoing refetch for related queries
+      await queryClient.cancelQueries({ queryKey: ["userData"] });
+      await queryClient.cancelQueries({ queryKey: ["courses"] });
+
+      // Snapshot of the previous state
+      const previousUserData = queryClient.getQueryData(["userData"]);
+
+      // Optimistically update the user data cache
+      queryClient.setQueryData(["userData"], (oldData: User) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          courseStatuses: oldData.courseStatuses.map(
+            (status: UserCourseStatus) =>
+              status.course.documentId === courseDocumentId
+                ? { ...status, isFavourite: !isFavourite }
+                : status,
+          ),
+        };
+      });
+
+      return { previousUserData };
+    },
+    onSettled: () => {
+      // Refetch the user and courses data for consistency
+      queryClient.invalidateQueries({ queryKey: ["userData"] });
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
     },
   });
 
