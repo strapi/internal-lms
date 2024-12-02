@@ -43,6 +43,9 @@ const fetchCourses = async (): Promise<Course[]> => {
         thumbnail: {
           populate: "*",
         },
+        categories: {
+          populate: "*",
+        },
         sections: {
           populate: {
             modules: {
@@ -128,12 +131,13 @@ const fetchAuthenticatedUser = async (): Promise<User> => {
  * Fetches the current authenticated user's details, including courseStatuses.
  * @returns {Promise<UserCourseStatus>} A promise that resolves to the user details.
  */
-const fetchUserCourseStatuses = async (): Promise<User> => {
+const fetchUserData = async (): Promise<User> => {
   const query = qs.stringify(
     {
       populate: {
         courseStatuses: {
           populate: {
+            fields: ["isFavourite"],
             course: {
               fields: ["documentId"],
             },
@@ -173,72 +177,62 @@ const fetchUserCourseStatuses = async (): Promise<User> => {
 const createOrUpdateCourseStatus = async (
   data: CourseStatusInputData,
 ): Promise<UserCourseStatus> => {
-  console.log("the data we're sending", data);
-
-  const authenticatedUser = await fetchUserCourseStatuses();
+  const authenticatedUser = await fetchUserData();
   const userId = authenticatedUser.id;
 
   const existingCourseStatus = authenticatedUser.courseStatuses?.find(
     (status) => status.course?.documentId === data.course,
   );
 
-  console.log("the existing course status", existingCourseStatus);
-
   if (existingCourseStatus) {
-    console.log("a course status already exists");
-
     const statusDocumentId = existingCourseStatus.documentId;
     const updatedSections = [...(existingCourseStatus.sections || [])];
 
-    console.log("the existing sections", updatedSections);
+    if (data.sections) {
+      data.sections.forEach((newSection) => {
+        const sectionIndex = updatedSections.findIndex(
+          (section) =>
+            section.section.documentId === newSection.sectionDocumentId,
+        );
 
-    // Handle sections and modules
-    data.sections.forEach((newSection) => {
-      const sectionIndex = updatedSections.findIndex(
-        (section) =>
-          section.section.documentId === newSection.sectionDocumentId,
-      );
+        if (sectionIndex > -1) {
+          const section = updatedSections[sectionIndex];
+          const modules = section.modules || [];
 
-      if (sectionIndex > -1) {
-        const section = updatedSections[sectionIndex];
-        const modules = section.modules || [];
+          newSection.modules.forEach((newModule) => {
+            const moduleIndex = modules.findIndex(
+              (mod) => mod.module?.documentId === newModule.moduleDocumentId,
+            );
 
-        newSection.modules.forEach((newModule) => {
-          const moduleIndex = modules.findIndex(
-            (mod) => mod.module?.documentId === newModule.moduleDocumentId,
-          );
+            if (moduleIndex > -1) {
+              modules[moduleIndex].progress = newModule.progress;
+            } else {
+              modules.push({
+                module: { documentId: newModule.moduleDocumentId },
+                progress: newModule.progress,
+              });
+            }
+          });
 
-          if (moduleIndex > -1) {
-            // Update existing module
-            modules[moduleIndex].progress = newModule.progress;
-          } else {
-            // Add new module
-            modules.push({
-              module: { documentId: newModule.moduleDocumentId },
-              progress: newModule.progress,
-            });
-          }
-        });
+          section.modules = modules;
+        } else {
+          updatedSections.push({
+            section: { documentId: newSection.sectionDocumentId },
+            modules: newSection.modules.map((mod) => ({
+              module: { documentId: mod.moduleDocumentId },
+              progress: mod.progress,
+            })),
+          });
+        }
+      });
+    }
 
-        section.modules = modules;
-      } else {
-        // Add new section
-        updatedSections.push({
-          section: { documentId: newSection.sectionDocumentId },
-          modules: newSection.modules.map((mod) => ({
-            module: { documentId: mod.moduleDocumentId },
-            progress: mod.progress,
-          })),
-        });
-      }
-    });
-
-    // Send the PUT request to update the course status
     const response = await axios.put(`/course-statuses/${statusDocumentId}`, {
       data: {
         course: data.course,
         user: userId,
-        progress: data.progress,
+        progress: data.progress || existingCourseStatus.progress,
+        isFavourite: data.isFavourite ?? existingCourseStatus.isFavourite,
         sections: updatedSections.map((section) => ({
           section: section.section.documentId,
           modules: section.modules.map((module) => ({
@@ -250,19 +244,20 @@ const createOrUpdateCourseStatus = async (
     });
     return response.data;
   } else {
-    // Create a new course status
     const response = await axios.post("/course-statuses", {
       data: {
         course: data.course,
         user: userId,
-        progress: data.progress,
-        sections: data.sections.map((section) => ({
-          section: section.sectionDocumentId,
-          modules: section.modules.map((module) => ({
-            module: module.moduleDocumentId,
-            progress: module.progress,
-          })),
-        })),
+        progress: data.progress || 0,
+        isFavourite: data.isFavourite || false,
+        sections:
+          data.sections?.map((section) => ({
+            section: section.sectionDocumentId,
+            modules: section.modules.map((module) => ({
+              module: module.moduleDocumentId,
+              progress: module.progress,
+            })),
+          })) || [],
       },
     });
 
@@ -272,7 +267,7 @@ const createOrUpdateCourseStatus = async (
 
 export {
   fetchAuthenticatedUser,
-  fetchUserCourseStatuses,
+  fetchUserData,
   fetchCategories,
   fetchCourses,
   fetchHomePageData,

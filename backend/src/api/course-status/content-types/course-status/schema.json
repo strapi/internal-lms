@@ -31,6 +31,9 @@
       "type": "component",
       "repeatable": true,
       "component": "user.section"
+    },
+    "isFavourite": {
+      "type": "boolean"
     }
   }
 }

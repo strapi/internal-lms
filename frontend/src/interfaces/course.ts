@@ -144,8 +144,9 @@ export interface SectionProgress {
 export interface CourseStatusInputData {
   course: string;
   user?: number;
-  progress: number;
-  sections: SectionProgress[];
+  progress?: number;
+  isFavourite?: boolean;
+  sections?: SectionProgress[];
 }
 
 export interface UserModule {
@@ -170,6 +171,7 @@ export interface UserCourseStatus {
   id: number;
   documentId: string;
   progress: number;
+  isFavourite?: boolean;
   course: {
     id: number;
     documentId: string;

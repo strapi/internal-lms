@@ -1,4 +1,4 @@
-import { UserCourseStatus } from "./course";
+import { Course, UserCourseStatus } from "./course";
 
 export interface AuthPayloadType {
   userInfo: {
@@ -20,6 +20,7 @@ export interface User {
   username: string;
   email: string;
   courseStatuses?: UserCourseStatus[];
+  favourites?: Course[];
 }
 
 export interface AuthState {

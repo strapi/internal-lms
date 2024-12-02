@@ -1,5 +1,3 @@
-// courseSlug.tsx
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   Accordion,
@@ -10,15 +8,16 @@ import {
 import { BlocksRenderer } from "@strapi/blocks-react-renderer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MuxPlayer from "@mux/mux-player-react";
 import {
   fetchCourseBySlug,
   createOrUpdateCourseStatus,
-  fetchUserCourseStatuses,
+  fetchUserData,
 } from "@/lib/queries/appQueries";
 import { Course, Module, Section, UserCourseStatus } from "@/interfaces/course";
 import { User as AuthUser } from "@/interfaces/auth";
+import { Star, StarOff } from "lucide-react";
 
 interface User extends AuthUser {
   courseStatuses?: UserCourseStatus[];
@@ -31,6 +30,8 @@ const SingleCourse: React.FC = () => {
     from: "/_dashboardLayout/courses/$courseSlug",
   });
 
+  const queryClient = useQueryClient();
+
   const {
     data: course,
     isLoading,
@@ -41,15 +42,13 @@ const SingleCourse: React.FC = () => {
     enabled: !!courseSlug,
   });
 
-  console.log("the course", course);
-
   const {
-    data: authenticatedUser,
+    data: userData,
     isLoading: userLoading,
     error: userError,
   } = useQuery<User, Error>({
-    queryKey: ["authenticatedUser"],
-    queryFn: fetchUserCourseStatuses,
+    queryKey: ["userData"],
+    queryFn: fetchUserData,
   });
 
   const [activeSectionDocumentId, setActiveSectionDocumentId] = useState<
@@ -64,19 +63,32 @@ const SingleCourse: React.FC = () => {
 
   const { mutate: updateCourseStatus } = useMutation({
     mutationFn: createOrUpdateCourseStatus,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["userData"] }),
   });
+
+  const toggleFavourite = () => {
+    if (course) {
+      const isFavourite = userData?.courseStatuses?.find(
+        (status) => status.course.documentId === course.documentId,
+      )?.isFavourite;
+
+      updateCourseStatus({
+        course: course.documentId,
+        isFavourite: !isFavourite,
+        progress: 0,
+        sections: [],
+      });
+    }
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const playerRef = useRef<any>(null);
 
-  // Prepopulate module progress and set active module/section
   useEffect(() => {
-    if (course && authenticatedUser && authenticatedUser.courseStatuses) {
-      const courseStatus = authenticatedUser.courseStatuses.find(
+    if (course && userData && userData.courseStatuses) {
+      const courseStatus = userData.courseStatuses.find(
         (status) => status.course?.documentId === course.documentId,
       );
-
-      console.log("the courseStatus", courseStatus);
 
       const progressMap: Record<string, number> = {};
       let nextModuleDocumentId: string | null = null;
@@ -96,27 +108,21 @@ const SingleCourse: React.FC = () => {
         });
       }
 
-      console.log("Setting moduleProgress:", progressMap);
       setModuleProgress(progressMap);
 
       if (nextModuleDocumentId) {
         setActiveModuleDocumentId(nextModuleDocumentId);
         setActiveSectionDocumentId(nextSectionDocumentId);
-      } else {
-        // If no next module is found (user hasn't started or has completed all modules)
-        // Set to the first module of the first section
-        if (course.sections.length > 0) {
-          const firstSection = course.sections[0];
-          setActiveSectionDocumentId(firstSection.documentId);
-          if (firstSection.modules.length > 0) {
-            setActiveModuleDocumentId(firstSection.modules[0].documentId);
-          }
+      } else if (course.sections.length > 0) {
+        const firstSection = course.sections[0];
+        setActiveSectionDocumentId(firstSection.documentId);
+        if (firstSection.modules.length > 0) {
+          setActiveModuleDocumentId(firstSection.modules[0].documentId);
         }
       }
     }
-  }, [course, authenticatedUser]);
+  }, [course, userData]);
 
-  // Track playback progress
   const handleTimeUpdate = () => {
     const player = playerRef.current;
     if (player && activeModuleDocumentId && course) {
@@ -140,16 +146,13 @@ const SingleCourse: React.FC = () => {
     }
   };
 
-  // Update module and course progress
   const handleVideoEnd = () => {
     if (activeModuleDocumentId && course) {
-      // Set module progress to 100% when video ends
       setModuleProgress((prev) => ({
         ...prev,
         [activeModuleDocumentId]: 100,
       }));
 
-      // Proceed to update course status
       const section = course.sections.find((section) =>
         section.modules.some(
           (module) => module.documentId === activeModuleDocumentId,
@@ -164,7 +167,6 @@ const SingleCourse: React.FC = () => {
 
       if (!module) return;
 
-      // Update the course status with the new progres  s
       const totalModules = course.sections.reduce(
         (total, section) => total + section.modules.length,
         0,
@@ -175,8 +177,6 @@ const SingleCourse: React.FC = () => {
         0,
       );
       const overallProgress = totalProgress / totalModules;
-
-      console.log("module progress after video end", moduleProgress);
 
       updateCourseStatus({
         course: course.documentId,
@@ -209,9 +209,12 @@ const SingleCourse: React.FC = () => {
 
   const poster = IMAGE_URL + (course.thumbnail?.url || "");
 
+  const isFavourite = userData?.courseStatuses?.find(
+    (status) => status.course.documentId === course.documentId,
+  )?.isFavourite;
+
   return (
     <div className="flex w-full gap-4">
-      {/* Video Section */}
       <div className="flex w-[70%] flex-col">
         <div className="aspect-video rounded-lg">
           {activeModule?.media?.playback_id ? (
@@ -235,7 +238,25 @@ const SingleCourse: React.FC = () => {
         </div>
 
         <div className="mt-8">
-          <h1 className="text-xl font-bold">{course.title}</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold">{course.title}</h1>
+            <button
+              onClick={toggleFavourite}
+              className="focus:outline-none"
+              aria-label={
+                isFavourite ? "Remove from favourites" : "Add to favourites"
+              }
+            >
+              {isFavourite ? (
+                <Star className="text-yellow-500" size={24} />
+              ) : (
+                <StarOff
+                  className="text-gray-500 dark:text-gray-400"
+                  size={24}
+                />
+              )}
+            </button>
+          </div>
           <p className="text-md mb-6">
             {activeModule?.title || "Select a module to view"}
           </p>
@@ -243,7 +264,6 @@ const SingleCourse: React.FC = () => {
         </div>
       </div>
 
-      {/* Sidebar Section */}
       <div className="flex w-[30%] flex-col overflow-hidden rounded-lg border bg-white p-6 dark:bg-gray-950">
         <h2 className="text-lg font-semibold">{course.title}</h2>
         <Accordion
@@ -288,7 +308,7 @@ const SingleCourse: React.FC = () => {
                         <Checkbox
                           checked={moduleProgress[module.documentId] === 100}
                         />
-                        <div className="flex-col flex">
+                        <div className="flex flex-col">
                           <h4 className="text-sm font-semibold">
                             {module.title}
                           </h4>
@@ -307,8 +327,6 @@ const SingleCourse: React.FC = () => {
   );
 };
 
-export const Route = createFileRoute(
-  "/_dashboardLayout/courses/$courseSlug",
-)({
+export const Route = createFileRoute("/_dashboardLayout/courses/$courseSlug")({
   component: SingleCourse,
 });
