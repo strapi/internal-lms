@@ -82,3 +82,7 @@
 .strapi-brand {
   background: #4945ff;
 }
+
+.strapi-brand-hover {
+  background: rgb(73 69 255 / 10%);
+}

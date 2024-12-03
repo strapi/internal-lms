@@ -57,14 +57,46 @@ const CoursesPage: React.FC = () => {
   });
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+    <div className="flex gap-4">
       {/* Filters */}
-      <div className="order-1 space-y-4 rounded-lg border bg-white p-6 shadow-md dark:bg-gray-800 md:order-2 md:col-span-1">
-        <div className="mb-6">
+      <div className="order-1 w-[30%] rounded-lg border bg-white p-6 shadow-md dark:bg-gray-800 md:order-2 md:col-span-1">
+        <h2 className="mb-4 text-xl font-semibold">Filter by categories</h2>
+        <ul className="flex flex-wrap gap-2">
+          {categories.map((category) => (
+            <li key={category.id}>
+              <button
+                onClick={() => setSelectedCategory(category.id)}
+                className={cn(
+                  "rounded-3xl p-2 px-4 text-left",
+                  selectedCategory === category.id
+                    ? "strapi-brand text-white"
+                    : "bg-white text-black",
+                )}
+              >
+                <span className="font-semibold">{category.name}</span>
+              </button>
+            </li>
+          ))}
+          <li>
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={cn(
+                "rounded-3xl p-2 px-4 text-left",
+                selectedCategory === null
+                  ? "strapi-brand text-white"
+                  : "bg-white text-black",
+              )}
+            >
+              <span className="font-semibold">Show All</span>
+            </button>
+          </li>
+        </ul>
+        <div className="mt-6">
+          <h2 className="mb-4 text-xl font-semibold">Filter by favourites</h2>
           <button
             onClick={() => setShowFavorites((prev) => !prev)}
             className={cn(
-              "w-full rounded-lg p-2 text-left",
+              "w-full rounded-3xl p-2 px-4 text-left",
               showFavorites
                 ? "bg-yellow-500 text-white"
                 : "bg-white text-black",
@@ -73,46 +105,22 @@ const CoursesPage: React.FC = () => {
             {showFavorites ? "Show All Courses" : "Show Favorites"}
           </button>
         </div>
-
-        <h2 className="mb-4 text-xl font-bold">Categories</h2>
-        <ul className="space-y-4">
-          <li>
-            <button
-              onClick={() => setSelectedCategory(null)}
-              className={cn(
-                "w-full rounded-lg p-2 text-left",
-                selectedCategory === null
-                  ? "strapi-brand text-white"
-                  : "bg-white text-black",
-              )}
-            >
-              Show All
-            </button>
-          </li>
-          {categories.map((category) => (
-            <li key={category.id}>
-              <button
-                onClick={() => setSelectedCategory(category.id)}
-                className={cn(
-                  "w-full rounded-lg p-2 text-left",
-                  selectedCategory === category.id
-                    ? "strapi-brand text-white"
-                    : "bg-white text-black",
-                )}
-              >
-                <span className="flex flex-col">
-                  <span className="font-semibold">{category.title}</span>
-                  <span>{category.description}</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
       </div>
 
       {/* CourseCards */}
-      <div className="order-2 md:order-1 md:col-span-4">
-        <CourseCards courses={filteredCourses} showProgress={true} />
+      <div className="order-2 w-[70%] md:order-1 md:col-span-4">
+        {filteredCourses.length ? (
+          <CourseCards courses={filteredCourses} showProgress={true} />
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-6 rounded-lg border bg-white p-24 p-6 shadow-md dark:bg-gray-800">
+            <div className="h-24 w-24">
+              <img src="/strapi.svg" />
+            </div>
+            <h3 className="text-lg font-semibold">
+              Nothing found, try adjusting your filters
+            </h3>
+          </div>
+        )}
       </div>
     </div>
   );

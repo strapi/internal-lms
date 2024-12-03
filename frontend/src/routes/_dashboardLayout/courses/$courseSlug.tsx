@@ -8,17 +8,19 @@ import {
 import { toast } from "react-toastify";
 import { BlocksRenderer } from "@strapi/blocks-react-renderer";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MuxPlayer from "@mux/mux-player-react";
 import {
   fetchCourseBySlug,
   createOrUpdateCourseStatus,
   fetchUserData,
+  fetchCoursesByCategory,
 } from "@/lib/queries/appQueries";
 import { Course, Module, Section } from "@/interfaces/course";
 import { User } from "@/interfaces/auth";
-import { Star, StarOff } from "lucide-react";
+import { ArrowLeft, Star, StarOff } from "lucide-react";
+import { CourseCards } from "@/components/CourseCards";
 
 const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
 
@@ -37,6 +39,18 @@ const SingleCourse: React.FC = () => {
     queryKey: ["course", courseSlug],
     queryFn: () => fetchCourseBySlug(courseSlug!),
     enabled: !!courseSlug,
+  });
+
+  const { data: relatedCourses = [] } = useQuery({
+    queryKey: ["relatedCourses", course?.categories.map((cat) => cat.id)],
+    queryFn: () =>
+      course
+        ? fetchCoursesByCategory(
+            course.categories.map((cat) => cat.id),
+            course.documentId,
+          )
+        : [],
+    enabled: !!course,
   });
 
   const {
@@ -242,7 +256,7 @@ const SingleCourse: React.FC = () => {
 
         <div className="mt-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">{course.title}</h1>
+            <h1 className="text-2xl font-bold text-white">{course.title}</h1>
             <button
               onClick={toggleFavourite}
               className="focus:outline-none"
@@ -260,15 +274,43 @@ const SingleCourse: React.FC = () => {
               )}
             </button>
           </div>
-          <p className="text-md mb-6">
+
+          <h3 className="mb-4 text-lg font-semibold text-white">
             {activeModule?.title || "Select a module to view"}
-          </p>
+          </h3>
+
           <BlocksRenderer content={course.description} />
+
+          {/* Related Courses Section */}
+          {relatedCourses.length > 0 && (
+            <div className="mt-12">
+              <h2 className="mb-4 text-xl font-bold">Related Courses</h2>
+              <CourseCards courses={relatedCourses} showProgress={false} />
+            </div>
+          )}
         </div>
       </div>
 
       <div className="flex w-[30%] flex-col overflow-hidden rounded-lg border bg-white p-6 dark:bg-gray-800">
-        <h2 className="text-lg font-semibold">{course.title}</h2>
+        <ul className="mb-6 flex flex-wrap gap-2">
+          <li>
+            <Link
+              to="/courses"
+              className="block flex items-center gap-2 rounded-3xl border border-slate-200 p-2 px-4 text-left text-white hover:bg-white hover:text-black"
+            >
+              <ArrowLeft />
+              <span className="text-md font-semibold">Back</span>
+            </Link>
+          </li>
+          {course.categories.map((category) => (
+            <li key={category.id}>
+              <p className="strapi-brand rounded-3xl p-2 px-4 text-left text-white">
+                <span className="text-md font-semibold">{category.name}</span>
+              </p>
+            </li>
+          ))}
+        </ul>
+        <h2 className="text-xl font-semibold text-white">Modules</h2>
         <Accordion
           type="single"
           collapsible
@@ -278,7 +320,7 @@ const SingleCourse: React.FC = () => {
             setActiveSectionDocumentId(value || null);
           }}
         >
-          {course.sections?.map((section: Section) => {
+          {course.sections?.map((section: Section, index: number) => {
             const totalModules = section.modules.length;
             const completedModules = section.modules.filter(
               (module) => moduleProgress[module.documentId] === 100,
@@ -289,16 +331,23 @@ const SingleCourse: React.FC = () => {
                 key={section.documentId}
                 value={section.documentId}
               >
-                <AccordionTrigger className="flex items-center justify-between gap-4">
-                  <h3 className="text-md font-semibold">{section.name}</h3>
-                  <span className="ml-auto">{`${completedModules}/${totalModules}`}</span>
+                <AccordionTrigger className="flex flex-col items-start">
+                  <div className="flex w-full items-center justify-between gap-4 text-start">
+                    <h3 className="text-md mb-2 font-bold text-white">
+                      {index + 1}. {section.name}
+                    </h3>
+                    <p className="ml-auto font-semibold text-white">{`${completedModules}/${totalModules}`}</p>
+                  </div>
+                  <p className="pr-12 text-start text-white">
+                    {section.description}
+                  </p>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
                     {section.modules.map((module: Module) => (
                       <div
                         key={module.documentId}
-                        className="flex cursor-pointer items-center gap-4"
+                        className="cursor-pointer"
                         onClick={() => {
                           setActiveModuleDocumentId(module.documentId);
                           setActiveSectionDocumentId(section.documentId);
@@ -308,17 +357,21 @@ const SingleCourse: React.FC = () => {
                           className={`flex flex-col rounded-lg p-4 ${
                             activeModuleDocumentId === module.documentId
                               ? "strapi-brand text-white"
-                              : "bg-white text-black"
+                              : "strapi-brand-hover text-inherit"
                           }`}
                         >
-                          <h4 className="text-base font-semibold">
-                            {module.title}
-                          </h4>
+                          <div className="mb-4 flex items-center justify-between">
+                            <h4 className="text-base font-semibold">
+                              {module.title}
+                            </h4>
+                            <Checkbox
+                              checked={
+                                moduleProgress[module.documentId] === 100
+                              }
+                            />
+                          </div>
                           {module.description && <p>{module.description}</p>}
                         </div>
-                        <Checkbox
-                          checked={moduleProgress[module.documentId] === 100}
-                        />
                       </div>
                     ))}
                   </div>

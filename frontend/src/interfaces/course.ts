@@ -3,7 +3,7 @@ import { BaseEntity, Image, Media } from "./shared";
 
 // Category
 export interface Category extends BaseEntity {
-  title: string;
+  name: string;
   description: string;
 }
 
@@ -25,6 +25,7 @@ export interface Module extends BaseEntity {
 // Section
 export interface Section extends BaseEntity {
   name: string;
+  description: string;
   modules: Module[];
 }
 
@@ -38,6 +39,7 @@ export interface Course extends BaseEntity {
   categories: Category[];
   authors: Author[];
   sections: Section[];
+  isFavourite?: boolean;
 }
 
 // Progress Tracking
@@ -107,7 +109,6 @@ export interface UserCourseStatus {
 
 export interface CourseWithProgress extends Course {
   progress: number;
-  isFavourite?: boolean;
 }
 
 export interface CourseCardsProps {

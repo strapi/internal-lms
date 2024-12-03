@@ -50,7 +50,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
     };
 
     return (
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {courses.map((course) => {
           const totalSections = course.sections?.length || 0;
           const totalModules =
@@ -62,6 +62,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
           const progress = course.progress || 0;
 
           let buttonLabel = "";
+
           if (progress === 0) {
             buttonLabel = "Start";
           } else if (progress > 0 && progress < 100) {
@@ -72,7 +73,18 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
 
           return (
             <Card key={course.id} className="rounded-lg shadow-lg">
-              <Link to={`/courses/${course.slug}`} className="block">
+              <Link to={`/courses/${course.slug}`} className="relative block">
+                {course.categories.length && (
+                  <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                    {course.categories.map((category) => {
+                      return (
+                        <p className="strapi-brand rounded-2xl p-1 px-3 text-sm font-semibold">
+                          {category.name}
+                        </p>
+                      );
+                    })}
+                  </div>
+                )}
                 {course.thumbnail && (
                   <img
                     src={`${IMAGE_URL}/${course.thumbnail.url}`}
@@ -93,34 +105,38 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                           style={{ width: `${progress}%` }}
                         />
                       </div>
-                      {course.synopsis && (
-                        <p className="mt-4 text-gray-600 dark:text-gray-400">
-                          {course.synopsis}
-                        </p>
+                    </div>
+                  )}
+
+                  {course.synopsis && (
+                    <p className="mt-4 text-gray-600 dark:text-gray-400">
+                      {course.synopsis}
+                    </p>
+                  )}
+
+                  {showProgress && (
+                    <div className="flex justify-center mt-4">
+                      {buttonLabel && (
+                        <>
+                          {progress < 100 ? (
+                            <button className="strapi-brand mt-2 flex items-center rounded-3xl border border-slate-700 px-4 py-1 text-sm text-white hover:bg-blue-600">
+                              <span className="mr-2">{buttonLabel}</span>
+                              <Play size={16} />
+                            </button>
+                          ) : (
+                            <span className="mt-2 inline-flex items-center rounded-3xl border border-slate-700 bg-green-500 px-4 py-1 text-sm text-white">
+                              <span className="mr-2">{buttonLabel}</span>
+                              <Check size={16} />
+                            </span>
+                          )}
+                        </>
                       )}
-                      <div className="flex justify-center py-4">
-                        {buttonLabel && (
-                          <>
-                            {progress < 100 ? (
-                              <button className="strapi-brand mt-2 flex items-center rounded-3xl border border-slate-700 px-4 py-1 text-sm text-white hover:bg-blue-600">
-                                <span className="mr-2">{buttonLabel}</span>
-                                <Play size={16} />
-                              </button>
-                            ) : (
-                              <span className="mt-2 inline-flex items-center rounded-3xl border border-slate-700 bg-green-500 px-4 py-1 text-sm text-white">
-                                <span className="mr-2">{buttonLabel}</span>
-                                <Check size={16} />
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </div>
                     </div>
                   )}
                 </div>
               </Link>
 
-              <div className="flex items-center justify-between px-6 pb-6">
+              <div className="mt-4 flex items-center justify-between px-6 pb-6">
                 <button
                   onClick={() =>
                     handleFavouriteClick(

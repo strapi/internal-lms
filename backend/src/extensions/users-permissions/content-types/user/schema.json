@@ -70,6 +70,11 @@
       "relation": "oneToMany",
       "target": "api::course-status.course-status",
       "mappedBy": "user"
+    },
+    "goals": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::course.course"
     }
   }
 }

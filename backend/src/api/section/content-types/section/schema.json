@@ -19,6 +19,9 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::module.module"
+    },
+    "description": {
+      "type": "text"
     }
   }
 }

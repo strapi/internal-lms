@@ -5,8 +5,6 @@ import {
   Course,
   CourseStatusInputData,
   UserCourseStatus,
-  ModuleProgress,
-  SectionProgress,
   CourseWithProgress,
 } from "@/interfaces/course";
 import { User } from "@/interfaces/auth";
@@ -19,7 +17,7 @@ import { combineCourseDataWithProgress } from "../utils";
 export const fetchCategories = async (): Promise<Category[]> => {
   try {
     const query = qs.stringify(
-      { fields: ["documentId", "title", "description"] },
+      { fields: ["documentId", "name", "description"] },
       { encodeValuesOnly: true },
     );
     const response = await axios.get(`/categories?${query}`);
@@ -109,9 +107,9 @@ export const fetchCourseBySlug = async (slug: string): Promise<Course> => {
           thumbnail: {
             fields: ["url", "alternativeText", "caption", "width", "height"],
           },
-          categories: { fields: ["id", "title", "description"] },
+          categories: { fields: ["id", "name", "description"] },
           sections: {
-            fields: ["documentId", "name"],
+            fields: ["documentId", "name", "description"],
             populate: {
               modules: {
                 fields: ["documentId", "title", "description"],
@@ -295,3 +293,47 @@ export async function fetchProcessedCourses(): Promise<CourseWithProgress[]> {
   const userCourseStatuses = user?.courseStatuses || [];
   return combineCourseDataWithProgress(courses, userCourseStatuses);
 }
+
+/**
+ * Fetches courses with the same categories as the given course.
+ * @param {number[]} categoryIds - The IDs of the categories to match.
+ * @returns {Promise<Course[]>} A promise that resolves to an array of courses.
+ */
+export const fetchCoursesByCategory = async (
+  categoryIds: number[],
+  excludeDocumentId: string,
+): Promise<CourseWithProgress[]> => {
+  try {
+    const query = qs.stringify(
+      {
+        filters: {
+          categories: {
+            id: {
+              $in: categoryIds,
+            },
+          },
+          documentId: {
+            $ne: excludeDocumentId,
+          },
+        },
+        fields: ["slug", "title", "description", "synopsis"],
+        populate: {
+          thumbnail: { populate: "*" },
+          categories: { populate: "*" },
+          sections: {
+            populate: {
+              modules: { populate: "*" },
+            },
+          },
+        },
+      },
+      { encodeValuesOnly: true },
+    );
+
+    const response = await axios.get(`/courses?${query}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching courses by category:", error);
+    throw error;
+  }
+};
