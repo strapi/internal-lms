@@ -5,6 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { toast } from "react-toastify";
 import { BlocksRenderer } from "@strapi/blocks-react-renderer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createFileRoute, useParams } from "@tanstack/react-router";
@@ -67,6 +68,12 @@ const SingleCourse: React.FC = () => {
       const isFavourite = userData?.courseStatuses?.find(
         (status) => status.course.documentId === course.documentId,
       )?.isFavourite;
+
+      toast(
+        !isFavourite
+          ? `${course.title} added to favourites`
+          : `${course.title} removed from favourites`,
+      );
 
       updateCourseStatus({
         course: course.documentId,

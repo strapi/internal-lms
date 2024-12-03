@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from "react-toastify";
 import { Card } from "@/components/ui/card";
 import { CourseCardsProps } from "@/interfaces/course";
 import { createOrUpdateCourseStatus } from "@/lib/queries/appQueries";
@@ -34,7 +35,14 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
     const handleFavouriteClick = (
       courseDocumentId: string,
       isCurrentlyFavourite: boolean,
+      courseTitle: string,
     ) => {
+      toast(
+        !isCurrentlyFavourite
+          ? `${courseTitle} added to favourites`
+          : `${courseTitle} removed from favourites`,
+      );
+
       toggleFavouriteMutation.mutate({
         courseDocumentId,
         isFavourite: !isCurrentlyFavourite,
@@ -81,7 +89,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                     <div className="mt-4">
                       <div className="h-2.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                         <div
-                          className="h-2.5 rounded-full strapi-brand"
+                          className="strapi-brand h-2.5 rounded-full"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
@@ -94,7 +102,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                         {buttonLabel && (
                           <>
                             {progress < 100 ? (
-                              <button className="mt-2 flex items-center rounded-3xl border border-slate-700 strapi-brand px-4 py-1 text-sm text-white hover:bg-blue-600">
+                              <button className="strapi-brand mt-2 flex items-center rounded-3xl border border-slate-700 px-4 py-1 text-sm text-white hover:bg-blue-600">
                                 <span className="mr-2">{buttonLabel}</span>
                                 <Play size={16} />
                               </button>
@@ -118,6 +126,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                     handleFavouriteClick(
                       course.documentId,
                       !!course.isFavourite,
+                      course.title,
                     )
                   }
                   className="focus:outline-none"
