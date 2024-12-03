@@ -1,5 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import {
+  Course,
+  CourseWithProgress,
+  UserCourseStatus,
+} from "@/interfaces/course";
 
 /**
  * Merges class names using clsx and tailwind-merge.
@@ -42,3 +47,46 @@ export const formatUsername = (username: string | null): string => {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1)) // Capitalize each part
     .join(" "); // Join parts with a space
 };
+
+export function combineCourseDataWithProgress(
+  courses: Course[],
+  courseStatuses: UserCourseStatus[],
+): CourseWithProgress[] {
+  const courseStatusMap = new Map<string, UserCourseStatus>();
+
+  courseStatuses.forEach((courseStatus) => {
+    courseStatusMap.set(courseStatus.course.documentId, courseStatus);
+  });
+
+  return courses.map((course) => {
+    const courseStatus = courseStatusMap.get(course.documentId);
+
+    const totalModules =
+      course.sections?.reduce(
+        (count, section) => count + (section.modules?.length || 0),
+        0,
+      ) || 0;
+
+    let completedModules = 0;
+
+    if (courseStatus?.sections) {
+      courseStatus.sections.forEach((sectionStatus) => {
+        sectionStatus.modules.forEach((moduleStatus) => {
+          if (moduleStatus.progress === 100) {
+            completedModules += 1;
+          }
+        });
+      });
+    }
+
+    const progress =
+      totalModules > 0 ? (completedModules / totalModules) * 100 : 0;
+    const isFavourite = !!courseStatus?.isFavourite;
+
+    return {
+      ...course,
+      progress,
+      isFavourite,
+    };
+  });
+}

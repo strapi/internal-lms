@@ -260,7 +260,7 @@ const SingleCourse: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex w-[30%] flex-col overflow-hidden rounded-lg border bg-white p-6 dark:bg-gray-950">
+      <div className="flex w-[30%] flex-col overflow-hidden rounded-lg border bg-white p-6 dark:bg-gray-800">
         <h2 className="text-lg font-semibold">{course.title}</h2>
         <Accordion
           type="single"
@@ -282,34 +282,36 @@ const SingleCourse: React.FC = () => {
                 key={section.documentId}
                 value={section.documentId}
               >
-                <AccordionTrigger className="flex items-center justify-between">
+                <AccordionTrigger className="flex items-center justify-between gap-4">
                   <h3 className="text-md font-semibold">{section.name}</h3>
-                  <span>{`${completedModules}/${totalModules}`}</span>
+                  <span className="ml-auto">{`${completedModules}/${totalModules}`}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
                     {section.modules.map((module: Module) => (
                       <div
                         key={module.documentId}
-                        className={`flex cursor-pointer items-center gap-2 p-2 ${
-                          activeModuleDocumentId === module.documentId
-                            ? "bg-blue-500 text-white"
-                            : "bg-white text-black"
-                        }`}
+                        className="flex cursor-pointer items-center gap-4"
                         onClick={() => {
                           setActiveModuleDocumentId(module.documentId);
                           setActiveSectionDocumentId(section.documentId);
                         }}
                       >
-                        <Checkbox
-                          checked={moduleProgress[module.documentId] === 100}
-                        />
-                        <div className="flex flex-col">
-                          <h4 className="text-sm font-semibold">
+                        <div
+                          className={`flex flex-col rounded-lg p-4 ${
+                            activeModuleDocumentId === module.documentId
+                              ? "strapi-brand text-white"
+                              : "bg-white text-black"
+                          }`}
+                        >
+                          <h4 className="text-base font-semibold">
                             {module.title}
                           </h4>
                           {module.description && <p>{module.description}</p>}
                         </div>
+                        <Checkbox
+                          checked={moduleProgress[module.documentId] === 100}
+                        />
                       </div>
                     ))}
                   </div>

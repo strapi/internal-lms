@@ -7,8 +7,10 @@ import {
   UserCourseStatus,
   ModuleProgress,
   SectionProgress,
+  CourseWithProgress,
 } from "@/interfaces/course";
 import { User } from "@/interfaces/auth";
+import { combineCourseDataWithProgress } from "../utils";
 
 /**
  * Fetches categories from the Strapi API.
@@ -53,6 +55,41 @@ export const fetchCourses = async (): Promise<Course[]> => {
     return response.data.data;
   } catch (error) {
     console.error("Error fetching courses:", error);
+    throw error;
+  }
+};
+
+export const fetchNewCourses = async (): Promise<Course[]> => {
+  try {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const query = qs.stringify(
+      {
+        filters: {
+          createdAt: {
+            $gte: oneMonthAgo.toISOString(), // Filter for courses created within the last month
+          },
+        },
+        fields: ["slug", "title", "description", "synopsis"],
+        populate: {
+          thumbnail: { populate: "*" },
+          categories: { populate: "*" },
+          sections: {
+            populate: {
+              modules: { populate: "*" },
+            },
+          },
+        },
+      },
+      { encodeValuesOnly: true },
+    );
+
+    const response = await axios.get(`/courses?${query}`);
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching new courses:", error);
     throw error;
   }
 };
@@ -252,3 +289,9 @@ export const createOrUpdateCourseStatus = async (
     throw error;
   }
 };
+
+export async function fetchProcessedCourses(): Promise<CourseWithProgress[]> {
+  const [user, courses] = await Promise.all([fetchUserData(), fetchCourses()]);
+  const userCourseStatuses = user?.courseStatuses || [];
+  return combineCourseDataWithProgress(courses, userCourseStatuses);
+}

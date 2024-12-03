@@ -1,16 +1,12 @@
 import React, { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CourseCards } from "@/components/CourseCards";
-import { Course } from "@/interfaces/course";
+import { createFileRoute } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 import {
   fetchCategories,
-  fetchCourses,
-  fetchUserData,
+  fetchProcessedCourses,
 } from "@/lib/queries/appQueries";
-import { cn } from "@/lib/utils";
-import { UserCourseStatus } from "@/interfaces/course";
-import { User } from "@/interfaces/auth";
 
 export const Route = createFileRoute("/_dashboardLayout/courses/")({
   component: () => <CoursesPage />,
@@ -30,79 +26,26 @@ const CoursesPage: React.FC = () => {
   });
 
   const {
-    data: courses = [],
+    data: processedCourses = [],
     isLoading: isCoursesLoading,
     error: coursesError,
   } = useQuery({
-    queryKey: ["courses"],
-    queryFn: fetchCourses,
+    queryKey: ["processedCourses"],
+    queryFn: fetchProcessedCourses,
   });
 
-  const {
-    data: user = null,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useQuery<User>({
-    queryKey: ["userData"],
-    queryFn: fetchUserData,
-  });
-
-  if (isCategoriesLoading || isCoursesLoading || isUserLoading) {
+  if (isCategoriesLoading || isCoursesLoading) {
     return <div>Loading...</div>;
   }
 
-  if (categoriesError)
+  if (categoriesError) {
     return <div>Error loading categories: {categoriesError.message}</div>;
-  if (coursesError)
-    return <div>Error loading courses: {coursesError.message}</div>;
-  if (userError) return <div>Error loading user data: {userError.message}</div>;
-
-  // Combine course data with user course statuses
-  const courseStatuses: UserCourseStatus[] = user?.courseStatuses || [];
-  const courseStatusMap = new Map<string, UserCourseStatus>();
-
-  courseStatuses.forEach((courseStatus) => {
-    courseStatusMap.set(courseStatus.course.documentId, courseStatus);
-  });
-
-  interface CourseWithProgress extends Course {
-    progress: number;
-    isFavourite: boolean;
   }
 
-  const processedCourses: CourseWithProgress[] = courses.map((course) => {
-    const courseStatus = courseStatusMap.get(course.documentId);
+  if (coursesError) {
+    return <div>Error loading courses: {coursesError.message}</div>;
+  }
 
-    const totalModules =
-      course.sections?.reduce(
-        (count, section) => count + (section.modules?.length || 0),
-        0,
-      ) || 0;
-
-    let completedModules = 0;
-
-    if (courseStatus?.sections) {
-      courseStatus.sections.forEach((sectionStatus) => {
-        sectionStatus.modules.forEach((moduleStatus) => {
-          if (moduleStatus.progress === 100) {
-            completedModules += 1;
-          }
-        });
-      });
-    }
-
-    const progress =
-      totalModules > 0 ? (completedModules / totalModules) * 100 : 0;
-    const isFavourite = !!courseStatus?.isFavourite;
-
-    return {
-      ...course,
-      progress,
-      isFavourite,
-    };
-  });
-
-  // Filter courses by category
   const filteredCourses = processedCourses.filter((course) => {
     if (showFavorites && !course.isFavourite) return false;
     if (selectedCategory) {
@@ -139,7 +82,7 @@ const CoursesPage: React.FC = () => {
               className={cn(
                 "w-full rounded-lg p-2 text-left",
                 selectedCategory === null
-                  ? "bg-blue-500 text-white"
+                  ? "strapi-brand text-white"
                   : "bg-white text-black",
               )}
             >
@@ -153,7 +96,7 @@ const CoursesPage: React.FC = () => {
                 className={cn(
                   "w-full rounded-lg p-2 text-left",
                   selectedCategory === category.id
-                    ? "bg-blue-500 text-white"
+                    ? "strapi-brand text-white"
                     : "bg-white text-black",
                 )}
               >
