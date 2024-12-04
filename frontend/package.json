@@ -24,6 +24,7 @@
     "@tanstack/react-router": "^1.35.6",
     "@tanstack/router-devtools": "^1.36.0",
     "@tanstack/router-vite-plugin": "^1.35.4",
+    "arktype": "^2.0.0-rc.25",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

@@ -115,3 +115,8 @@ export interface CourseCardsProps {
   courses: CourseWithProgress[];
   showProgress?: boolean;
 }
+
+export interface SearchResults {
+  courses: Course[];
+  categories: Category[];
+}

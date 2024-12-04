@@ -15,6 +15,7 @@ import { Route as LoginImport } from './routes/login'
 import { Route as DashboardLayoutImport } from './routes/_dashboardLayout'
 import { Route as IndexImport } from './routes/index'
 import { Route as LoginIndexImport } from './routes/login/index'
+import { Route as DashboardLayoutSearchIndexImport } from './routes/_dashboardLayout/search/index'
 import { Route as DashboardLayoutDashboardIndexImport } from './routes/_dashboardLayout/dashboard/index'
 import { Route as DashboardLayoutCoursesIndexImport } from './routes/_dashboardLayout/courses/index'
 import { Route as AuthCallbackProviderIdImport } from './routes/auth.callback.$providerId'
@@ -43,6 +44,13 @@ const LoginIndexRoute = LoginIndexImport.update({
   path: '/',
   getParentRoute: () => LoginRoute,
 } as any)
+
+const DashboardLayoutSearchIndexRoute = DashboardLayoutSearchIndexImport.update(
+  {
+    path: '/search/',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any,
+)
 
 const DashboardLayoutDashboardIndexRoute =
   DashboardLayoutDashboardIndexImport.update({
@@ -154,6 +162,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLayoutDashboardIndexImport
       parentRoute: typeof DashboardLayoutImport
     }
+    '/_dashboardLayout/search/': {
+      id: '/_dashboardLayout/search/'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof DashboardLayoutSearchIndexImport
+      parentRoute: typeof DashboardLayoutImport
+    }
   }
 }
 
@@ -167,6 +182,7 @@ export const routeTree = rootRoute.addChildren({
     DashboardLayoutCoursesCourseSlugRoute,
     DashboardLayoutCoursesIndexRoute,
     DashboardLayoutDashboardIndexRoute,
+    DashboardLayoutSearchIndexRoute,
   }),
   LoginRoute: LoginRoute.addChildren({ LoginIndexRoute }),
   AuthCallbackProviderIdRoute,
@@ -196,7 +212,8 @@ export const routeTree = rootRoute.addChildren({
         "/_dashboardLayout/_user/settings",
         "/_dashboardLayout/courses/$courseSlug",
         "/_dashboardLayout/courses/",
-        "/_dashboardLayout/dashboard/"
+        "/_dashboardLayout/dashboard/",
+        "/_dashboardLayout/search/"
       ]
     },
     "/login": {
@@ -230,6 +247,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_dashboardLayout/dashboard/": {
       "filePath": "_dashboardLayout/dashboard/index.tsx",
+      "parent": "/_dashboardLayout"
+    },
+    "/_dashboardLayout/search/": {
+      "filePath": "_dashboardLayout/search/index.tsx",
       "parent": "/_dashboardLayout"
     }
   }

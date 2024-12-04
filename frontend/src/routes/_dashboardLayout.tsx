@@ -11,6 +11,16 @@ export const Route = createFileRoute("/_dashboardLayout")({
 });
 
 export const DashboardLayout: React.FC = () => {
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to search results page
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+    }
+  };
+
   return (
     <div className="flex">
       <Drawer />
@@ -20,17 +30,16 @@ export const DashboardLayout: React.FC = () => {
           <h2 className="text-4xl font-semibold text-white">Strapi Learning</h2>
 
           <div className="flex items-center justify-end gap-4">
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <Search className="absolute left-3 top-1/2 z-10 -translate-y-1/2 transform text-gray-500" />
               <Input
                 type="text"
                 placeholder="Search"
-                onChange={() => {}}
-                value=""
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
-            </div>
-
+            </form>
             <Bell />
             <UserNav />
             <ThemeToggle />

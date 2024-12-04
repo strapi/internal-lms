@@ -15,6 +15,18 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
+"@ark/schema@0.25.0":
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/@ark/schema/-/schema-0.25.0.tgz#da138f9c2dd7b3f95665a0c557a5a9f3087f4a7b"
+  integrity sha512-1Air2M9Je8C/4+YNhJ1QPkoFbERX3PhulDVNW1RmpOpyUjUSM5lcuuyq357jp3a7+M3a5RV2PNdI1XZ/ah8l8Q==
+  dependencies:
+    "@ark/util" "0.25.0"
+
+"@ark/util@0.25.0":
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/@ark/util/-/util-0.25.0.tgz#2661328afb74cb6b2f64c413f9fe4a8c85d64be5"
+  integrity sha512-yo2Me+tYnmr6E0E3maZzu643/rL07oR25yBHkH24gllssqYcd6EPCvZE23GEKgbk0iac9J73GlJ9pkgZj43Q2g==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.24.7":
   version "7.24.7"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.24.7.tgz"
@@ -3656,6 +3668,14 @@ aria-query@~5.1.3:
   integrity sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==
   dependencies:
     deep-equal "^2.0.5"
+
+arktype@^2.0.0-rc.25:
+  version "2.0.0-rc.25"
+  resolved "https://registry.yarnpkg.com/arktype/-/arktype-2.0.0-rc.25.tgz#ffd7ee90da665bd213f918d5112d73b249b3eba2"
+  integrity sha512-ck1kRLda55Pv6L3vIIjRb6A22LqUcjitxPGS3OscOKwFcxNReaj+ItJJiysebBbbUy+ESouXTJ+vvck33spGDQ==
+  dependencies:
+    "@ark/schema" "0.25.0"
+    "@ark/util" "0.25.0"
 
 arr-diff@^4.0.0:
   version "4.0.0"

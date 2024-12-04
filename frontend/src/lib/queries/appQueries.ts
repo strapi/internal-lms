@@ -6,6 +6,7 @@ import {
   CourseStatusInputData,
   UserCourseStatus,
   CourseWithProgress,
+  SearchResults,
 } from "@/interfaces/course";
 import { User } from "@/interfaces/auth";
 import { combineCourseDataWithProgress } from "../utils";
@@ -334,6 +335,27 @@ export const fetchCoursesByCategory = async (
     return response.data.data;
   } catch (error) {
     console.error("Error fetching courses by category:", error);
+    throw error;
+  }
+};
+
+export const searchQuery = async (searchQuery: string) => {
+  try {
+    const query = qs.stringify({
+      _q: searchQuery,
+      populate: {
+        thumbnail: { populate: "*" },
+        categories: { populate: "*" },
+      },
+      fields: ["slug", "title", "description", "synopsis"],
+    });
+
+    const response = await axios.get(`/courses?${query}`);
+    return {
+      courses: response.data.data,
+    };
+  } catch (error) {
+    console.error("Error performing search:", error);
     throw error;
   }
 };
