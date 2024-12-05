@@ -1,6 +1,4 @@
 import { Course, UserCourseStatus } from "@/interfaces/course";
-import { createContext } from "react";
-
 /**
  * User interface
  */

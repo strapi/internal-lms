@@ -102,39 +102,44 @@ const SingleCourse: React.FC = () => {
   const playerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (course && userData && userData.courseStatuses) {
+    if (course && userData) {
       const courseStatus = userData.courseStatuses.find(
         (status) => status.course?.documentId === course.documentId,
       );
 
-      const progressMap: Record<string, number> = {};
-      let nextModuleDocumentId: string | null = null;
-      let nextSectionDocumentId: string | null = null;
+      if (!courseStatus) return;
 
-      if (courseStatus) {
-        courseStatus.sections.forEach((sectionStatus) => {
-          sectionStatus.modules.forEach((moduleStatus) => {
-            const moduleDocId = moduleStatus.module.documentId;
-            progressMap[moduleDocId] = moduleStatus.progress;
-
-            if (nextModuleDocumentId === null && moduleStatus.progress < 100) {
-              nextModuleDocumentId = moduleDocId;
-              nextSectionDocumentId = sectionStatus.section.documentId;
-            }
-          });
-        });
-      }
+      const progressMap = courseStatus.sections.reduce(
+        (acc, sectionStatus) => ({
+          ...acc,
+          ...Object.fromEntries(
+            sectionStatus.modules.map((moduleStatus) => [
+              moduleStatus.module.documentId,
+              moduleStatus.progress,
+            ]),
+          ),
+        }),
+        {},
+      );
 
       setModuleProgress(progressMap);
 
-      if (nextModuleDocumentId) {
-        setActiveModuleDocumentId(nextModuleDocumentId);
-        setActiveSectionDocumentId(nextSectionDocumentId);
-      } else if (course.sections.length > 0) {
-        const firstSection = course.sections[0];
-        setActiveSectionDocumentId(firstSection.documentId);
-        if (firstSection.modules.length > 0) {
-          setActiveModuleDocumentId(firstSection.modules[0].documentId);
+      // Ensure active states are only set if not already
+      if (!activeModuleDocumentId && !activeSectionDocumentId) {
+        const firstIncompleteModule = course.sections
+          .flatMap((section) => section.modules)
+          .find((module) => progressMap[module.documentId] < 100);
+
+        if (firstIncompleteModule) {
+          setActiveModuleDocumentId(firstIncompleteModule.documentId);
+          setActiveSectionDocumentId(
+            course.sections.find((section) =>
+              section.modules.some(
+                (module) =>
+                  module.documentId === firstIncompleteModule.documentId,
+              ),
+            )?.documentId || null,
+          );
         }
       }
     }
@@ -165,50 +170,73 @@ const SingleCourse: React.FC = () => {
 
   const handleVideoEnd = () => {
     if (activeModuleDocumentId && course) {
-      setModuleProgress((prev) => ({
-        ...prev,
-        [activeModuleDocumentId]: 100,
-      }));
+      // Mark the current module as complete
+      setModuleProgress((prev) => {
+        const updatedProgress = { ...prev, [activeModuleDocumentId]: 100 };
 
-      const section = course.sections.find((section) =>
-        section.modules.some(
-          (module) => module.documentId === activeModuleDocumentId,
-        ),
-      );
-      if (!section) return;
+        const sections = course.sections;
+        let foundNextModule = false;
 
-      const sectionDocumentId = section.documentId;
-      const module = section.modules.find(
-        (mod) => mod.documentId === activeModuleDocumentId,
-      );
+        for (let i = 0; i < sections.length; i++) {
+          const section = sections[i];
 
-      if (!module) return;
+          const currentModuleIndex = section.modules.findIndex(
+            (module) => module.documentId === activeModuleDocumentId,
+          );
 
-      const totalModules = course.sections.reduce(
-        (total, section) => total + section.modules.length,
-        0,
-      );
+          if (currentModuleIndex !== -1) {
+            // Check for next module in the same section
+            if (currentModuleIndex + 1 < section.modules.length) {
+              const nextModule = section.modules[currentModuleIndex + 1];
 
-      const totalProgress = Object.values(moduleProgress).reduce(
-        (a, b) => a + b,
-        0,
-      );
-      const overallProgress = totalProgress / totalModules;
+              setActiveModuleDocumentId(nextModule.documentId);
+              setActiveSectionDocumentId(section.documentId);
+              foundNextModule = true;
+              break;
+            }
 
-      updateCourseStatus({
-        course: course.documentId,
-        progress: Math.round(overallProgress),
-        sections: [
-          {
-            sectionDocumentId: sectionDocumentId,
-            modules: [
-              {
-                moduleDocumentId: module.documentId,
-                progress: 100,
-              },
-            ],
-          },
-        ],
+            // Check for next section
+            if (i + 1 < sections.length) {
+              const nextSection = sections[i + 1];
+
+              if (nextSection.modules.length > 0) {
+                setActiveSectionDocumentId(nextSection.documentId);
+                setActiveModuleDocumentId(nextSection.modules[0].documentId);
+                foundNextModule = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!foundNextModule) {
+          toast("Congratulations! You have completed this course.");
+        }
+
+        // Calculate progress after marking the module complete
+        const totalModules = sections.reduce(
+          (count, section) => count + section.modules.length,
+          0,
+        );
+        const totalProgress = Object.values(updatedProgress).reduce(
+          (sum, progress) => sum + progress,
+          0,
+        );
+        const overallProgress = (totalProgress / totalModules) * 100;
+
+        updateCourseStatus({
+          course: course.documentId,
+          progress: Math.round(overallProgress),
+          sections: sections.map((section) => ({
+            sectionDocumentId: section.documentId,
+            modules: section.modules.map((module) => ({
+              moduleDocumentId: module.documentId,
+              progress: updatedProgress[module.documentId] || 0,
+            })),
+          })),
+        });
+
+        return updatedProgress;
       });
     }
   };
@@ -234,22 +262,35 @@ const SingleCourse: React.FC = () => {
     <div className="flex w-full gap-4">
       <div className="flex w-[70%] flex-col">
         <div className="aspect-video rounded-lg">
-          {activeModule?.media?.playback_id ? (
-            <MuxPlayer
-              ref={playerRef}
-              playbackId={activeModule.media.playback_id}
-              metadata={{
-                video_id: `mux-video-${activeModule.media.playback_id}`,
-                video_title: activeModule.title,
-              }}
-              poster={poster}
-              className="h-full w-full"
-              onTimeUpdate={handleTimeUpdate}
-              onEnded={handleVideoEnd}
-            />
+          {activeModule ? (
+            activeModule.media?.playback_id ? (
+              <MuxPlayer
+                ref={playerRef}
+                playbackId={activeModule.media.playback_id}
+                metadata={{
+                  video_id: `mux-video-${activeModule.media.playback_id}`,
+                  video_title: activeModule.title,
+                }}
+                poster={poster}
+                className="h-full w-full"
+                onTimeUpdate={handleTimeUpdate}
+                onEnded={handleVideoEnd}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-black text-white">
+                <p>No video available</p>
+              </div>
+            )
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-black text-white">
-              <p>No video available</p>
+            // Placeholder content when all modules are complete
+            <div className="flex h-full flex-col items-center justify-center gap-6 rounded-lg border bg-white p-24 shadow-md dark:bg-gray-800">
+              <div className="h-24 w-24">
+                <img src="/strapi.svg" alt="All modules completed" />
+              </div>
+              <h3 className="text-lg font-semibold text-black dark:text-white">
+                Congratulations! You've completed all the modules in this
+                course.
+              </h3>
             </div>
           )}
         </div>
@@ -279,7 +320,9 @@ const SingleCourse: React.FC = () => {
             {activeModule?.title || "Select a module to view"}
           </h3>
 
-          <BlocksRenderer content={course.description} />
+          <div className="rich-text">
+            <BlocksRenderer content={course.description} />
+          </div>
 
           {/* Related Courses Section */}
           {relatedCourses.length > 0 && (
@@ -291,26 +334,26 @@ const SingleCourse: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex w-[30%] flex-col overflow-hidden rounded-lg border bg-white p-6 dark:bg-gray-800">
+      <div className="flex w-[30%] flex-col self-start overflow-hidden rounded-lg border bg-white p-6 dark:bg-gray-800">
+        <Link
+          to="/courses"
+          className="mb-6 flex items-center justify-center gap-2 rounded-3xl border border-slate-400 p-2 px-4 text-left text-black hover:bg-white dark:text-white dark:hover:text-black"
+        >
+          <ArrowLeft />
+          <span className="text-md font-semibol">Back to courses</span>
+        </Link>
         <ul className="mb-6 flex flex-wrap gap-2">
-          <li>
-            <Link
-              to="/courses"
-              className="block flex items-center gap-2 rounded-3xl border border-slate-200 p-2 px-4 text-left text-white hover:bg-white hover:text-black"
-            >
-              <ArrowLeft />
-              <span className="text-md font-semibold">Back</span>
-            </Link>
-          </li>
           {course.categories.map((category) => (
             <li key={category.id}>
               <p className="strapi-brand rounded-3xl p-2 px-4 text-left text-white">
-                <span className="text-md font-semibold">{category.name}</span>
+                <span className="text-sm font-semibold">{category.name}</span>
               </p>
             </li>
           ))}
         </ul>
-        <h2 className="text-xl font-semibold text-white">Modules</h2>
+        <h2 className="text-xl font-semibold text-black dark:text-white">
+          Modules
+        </h2>
         <Accordion
           type="single"
           collapsible
@@ -333,17 +376,18 @@ const SingleCourse: React.FC = () => {
               >
                 <AccordionTrigger className="flex flex-col items-start">
                   <div className="flex w-full items-center justify-between gap-4 text-start">
-                    <h3 className="text-md mb-2 font-bold text-white">
+                    <h3 className="text-md font-bold text-black dark:text-white">
                       {index + 1}. {section.name}
                     </h3>
-                    <p className="ml-auto font-semibold text-white">{`${completedModules}/${totalModules}`}</p>
+                    <p className="ml-auto font-semibold text-black dark:text-white">{`${completedModules}/${totalModules}`}</p>
                   </div>
-                  <p className="pr-12 text-start text-white">
-                    {section.description}
-                  </p>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">
+                    <p className="mb-6 text-start text-black dark:text-white">
+                      {section.description}
+                    </p>
+
                     {section.modules.map((module: Module) => (
                       <div
                         key={module.documentId}
@@ -360,11 +404,12 @@ const SingleCourse: React.FC = () => {
                               : "strapi-brand-hover text-inherit"
                           }`}
                         >
-                          <div className="mb-4 flex items-center justify-between">
-                            <h4 className="text-base font-semibold">
+                          <div className="mb-4 flex justify-between">
+                            <h4 className="text-base font-semibold dark:text-white">
                               {module.title}
                             </h4>
                             <Checkbox
+                              className="mt-1"
                               checked={
                                 moduleProgress[module.documentId] === 100
                               }
@@ -380,6 +425,22 @@ const SingleCourse: React.FC = () => {
             );
           })}
         </Accordion>
+
+        {course.sections.every((section) =>
+          section.modules.every(
+            (module) => moduleProgress[module.documentId] === 100,
+          ),
+        ) && (
+          <div className="mt-12 rounded-lg border border-slate-400 bg-white p-6 dark:bg-gray-800">
+            <h2 className="text-xl font-semibold text-black dark:text-white">
+              Congratulations! 🎉
+            </h2>
+            <p className="text-md mt-2 text-gray-700 dark:text-gray-300">
+              You've successfully completed the course. Feel free to explore
+              related courses or revisit the modules anytime!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

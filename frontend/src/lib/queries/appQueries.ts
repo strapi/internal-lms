@@ -6,7 +6,6 @@ import {
   CourseStatusInputData,
   UserCourseStatus,
   CourseWithProgress,
-  SearchResults,
 } from "@/interfaces/course";
 import { User } from "@/interfaces/auth";
 import { combineCourseDataWithProgress } from "../utils";
@@ -33,10 +32,15 @@ export const fetchCategories = async (): Promise<Category[]> => {
  * Fetches courses from the Strapi API.
  * @returns {Promise<Course[]>} A promise that resolves to an array of courses.
  */
-export const fetchCourses = async (): Promise<Course[]> => {
+export const fetchCourses = async (
+  categoryName: string | null | undefined,
+): Promise<Course[]> => {
   try {
     const query = qs.stringify(
       {
+        filters: categoryName
+          ? { categories: { name: { $eq: categoryName } } }
+          : undefined, // Pass undefined when no categoryName is provided
         fields: ["slug", "title", "description", "synopsis"],
         populate: {
           thumbnail: { populate: "*" },
@@ -289,8 +293,13 @@ export const createOrUpdateCourseStatus = async (
   }
 };
 
-export async function fetchProcessedCourses(): Promise<CourseWithProgress[]> {
-  const [user, courses] = await Promise.all([fetchUserData(), fetchCourses()]);
+export async function fetchProcessedCourses(
+  categoryName: string | null | undefined,
+): Promise<CourseWithProgress[]> {
+  const [user, courses] = await Promise.all([
+    fetchUserData(),
+    fetchCourses(categoryName),
+  ]);
   const userCourseStatuses = user?.courseStatuses || [];
   return combineCourseDataWithProgress(courses, userCourseStatuses);
 }

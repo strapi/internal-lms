@@ -18,6 +18,7 @@ import { Route as LoginIndexImport } from './routes/login/index'
 import { Route as DashboardLayoutSearchIndexImport } from './routes/_dashboardLayout/search/index'
 import { Route as DashboardLayoutDashboardIndexImport } from './routes/_dashboardLayout/dashboard/index'
 import { Route as DashboardLayoutCoursesIndexImport } from './routes/_dashboardLayout/courses/index'
+import { Route as DashboardLayoutCategoriesIndexImport } from './routes/_dashboardLayout/categories/index'
 import { Route as AuthCallbackProviderIdImport } from './routes/auth.callback.$providerId'
 import { Route as DashboardLayoutCoursesCourseSlugImport } from './routes/_dashboardLayout/courses/$courseSlug'
 import { Route as DashboardLayoutUserSettingsImport } from './routes/_dashboardLayout/_user/settings'
@@ -61,6 +62,12 @@ const DashboardLayoutDashboardIndexRoute =
 const DashboardLayoutCoursesIndexRoute =
   DashboardLayoutCoursesIndexImport.update({
     path: '/courses/',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+
+const DashboardLayoutCategoriesIndexRoute =
+  DashboardLayoutCategoriesIndexImport.update({
+    path: '/categories/',
     getParentRoute: () => DashboardLayoutRoute,
   } as any)
 
@@ -148,6 +155,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackProviderIdImport
       parentRoute: typeof rootRoute
     }
+    '/_dashboardLayout/categories/': {
+      id: '/_dashboardLayout/categories/'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof DashboardLayoutCategoriesIndexImport
+      parentRoute: typeof DashboardLayoutImport
+    }
     '/_dashboardLayout/courses/': {
       id: '/_dashboardLayout/courses/'
       path: '/courses'
@@ -180,6 +194,7 @@ export const routeTree = rootRoute.addChildren({
     DashboardLayoutUserProfileRoute,
     DashboardLayoutUserSettingsRoute,
     DashboardLayoutCoursesCourseSlugRoute,
+    DashboardLayoutCategoriesIndexRoute,
     DashboardLayoutCoursesIndexRoute,
     DashboardLayoutDashboardIndexRoute,
     DashboardLayoutSearchIndexRoute,
@@ -211,6 +226,7 @@ export const routeTree = rootRoute.addChildren({
         "/_dashboardLayout/_user/profile",
         "/_dashboardLayout/_user/settings",
         "/_dashboardLayout/courses/$courseSlug",
+        "/_dashboardLayout/categories/",
         "/_dashboardLayout/courses/",
         "/_dashboardLayout/dashboard/",
         "/_dashboardLayout/search/"
@@ -240,6 +256,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/auth/callback/$providerId": {
       "filePath": "auth.callback.$providerId.tsx"
+    },
+    "/_dashboardLayout/categories/": {
+      "filePath": "_dashboardLayout/categories/index.tsx",
+      "parent": "/_dashboardLayout"
     },
     "/_dashboardLayout/courses/": {
       "filePath": "_dashboardLayout/courses/index.tsx",

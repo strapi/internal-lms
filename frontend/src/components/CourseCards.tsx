@@ -78,7 +78,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                   <div className="absolute left-3 top-3 flex flex-wrap gap-2">
                     {course.categories.map((category) => {
                       return (
-                        <p className="strapi-brand rounded-2xl p-1 px-3 text-sm font-semibold">
+                        <p key={category.id} className="strapi-brand rounded-2xl p-1 px-3 text-sm font-semibold text-white">
                           {category.name}
                         </p>
                       );

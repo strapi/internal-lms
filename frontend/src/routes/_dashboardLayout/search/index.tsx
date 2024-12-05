@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_dashboardLayout/search/")({
 });
 
 export const SearchResultsPage: React.FC = () => {
-  const { q } = useSearch({ strict: false });
+  const { q }: { q: string } = useSearch({ strict: false });
   const query = q || "";
 
   const { data, isLoading, error } = useQuery({
@@ -30,7 +30,14 @@ export const SearchResultsPage: React.FC = () => {
       {courses.length > 0 ? (
         <GalleryCards galleryItems={courses} />
       ) : (
-        <p>No results found for "{query}".</p>
+        <div className="flex flex-col items-center justify-center gap-6 rounded-lg border bg-white p-24 shadow-md dark:bg-gray-800">
+          <div className="h-24 w-24">
+            <img src="/strapi.svg" />
+          </div>
+          <h3 className="text-lg font-semibold">
+            No results found for "{query}".
+          </h3>
+        </div>
       )}
     </div>
   );

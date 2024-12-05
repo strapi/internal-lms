@@ -33,6 +33,9 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    --toastify-color-dark: rgb(31 41 55 / var(--tw-bg-opacity, 1));
+    --toastify-color-progress-dark: #4945ff;
   }
 
   .dark {
@@ -85,4 +88,48 @@
 
 .strapi-brand-hover {
   background: rgb(73 69 255 / 10%);
+}
+
+.rich-text {
+  @apply prose prose-lg prose-slate max-w-none;
+
+  h1 {
+    @apply mt-4 text-3xl font-bold text-black dark:text-white;
+  }
+
+  h2 {
+    @apply mt-3 text-2xl font-semibold text-black dark:text-white;
+  }
+
+  h3 {
+    @apply mt-3 text-xl font-semibold text-black dark:text-white;
+  }
+
+  h4 {
+    @apply mt-3 text-lg font-semibold text-black dark:text-white;
+  }
+
+  p {
+    @apply my-4 text-sm leading-relaxed text-black dark:text-white;
+  }
+
+  ul {
+    @apply my-2 list-inside list-disc text-sm text-black dark:text-white;
+  }
+
+  ol {
+    @apply my-2 list-inside list-decimal text-sm text-black dark:text-white;
+  }
+
+  a {
+    @apply text-blue-600 underline hover:text-blue-800;
+  }
+
+  blockquote {
+    @apply my-4 border-l-4 border-slate-400 pl-4 italic text-slate-600;
+  }
+
+  img {
+    @apply my-4 rounded-lg;
+  }
 }

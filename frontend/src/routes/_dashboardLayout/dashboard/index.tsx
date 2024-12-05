@@ -54,7 +54,12 @@ function Dashboard() {
         {userCourses.length > 0 ? (
           <CourseCards courses={userCourses.slice(0, 3)} showProgress={true} />
         ) : (
-          <p>No courses in progress</p>
+          <div className="flex flex-col items-center justify-center gap-6 rounded-lg border bg-white p-24 shadow-md dark:bg-gray-800">
+            <div className="h-24 w-24">
+              <img src="/strapi.svg" />
+            </div>
+            <h3 className="text-lg font-semibold">No courses in progress</h3>
+          </div>
         )}
       </div>
 
@@ -64,7 +69,12 @@ function Dashboard() {
         {newCourses.length > 0 ? (
           <GalleryCards galleryItems={newCourses} />
         ) : (
-          <p>No new courses available</p>
+          <div className="flex flex-col items-center justify-center gap-6 rounded-lg border bg-white p-24 shadow-md dark:bg-gray-800">
+            <div className="h-24 w-24">
+              <img src="/strapi.svg" />
+            </div>
+            <h3 className="text-lg font-semibold">No new courses available</h3>
+          </div>
         )}
       </div>
     </div>

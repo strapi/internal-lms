@@ -18,7 +18,7 @@ const Drawer: React.FC = () => {
   return (
     <div
       id="drawer-navigation"
-      className="fixed flex h-screen w-64 flex-col overflow-y-auto rounded-tr-3xl bg-white pb-4 pl-4 pt-12 dark:bg-gray-800"
+      className="fixed flex h-screen w-64 flex-col overflow-y-auto rounded-tr-3xl border bg-white pb-4 pl-4 pt-12 dark:bg-gray-800"
     >
       <div className="flex flex-wrap justify-center">
         <Link to="/dashboard">
@@ -47,56 +47,71 @@ const Drawer: React.FC = () => {
           </li>
           <li>
             <Link
-              to="/"
-              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
-            >
-              <Goal />
-              <span className="ml-3">Goals</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/"
+              to="/categories"
               className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
             >
               <Boxes />
-              <span className="ml-3">Catalogue</span>
+              <span className="ml-3">Categories</span>
             </Link>
           </li>
           <li>
             <Link
               to="/"
-              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
+              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 opacity-55 dark:text-white dark:[&.active]:bg-gray-700"
+            >
+              <Goal />
+              <div className="flex flex-col">
+                <span className="ml-3">Goals</span>
+                <span className="ml-3 text-xs">Coming soon</span>
+              </div>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/"
+              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 opacity-55 dark:text-white dark:[&.active]:bg-gray-700"
             >
               <LineChart />
-              <span className="ml-3">Surveys</span>
+              <div className="flex flex-col">
+                <span className="ml-3">Surveys</span>
+                <span className="ml-3 text-xs">Coming soon</span>
+              </div>
             </Link>
           </li>
           <li>
             <Link
               to="/"
-              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
+              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 opacity-55 dark:text-white dark:[&.active]:bg-gray-700"
             >
               <Network />
-              <span className="ml-3">Organization</span>
+              <div className="flex flex-col">
+                <span className="ml-3">Organization</span>
+                <span className="ml-3 text-xs">Coming soon</span>
+              </div>
             </Link>
           </li>
           <li>
             <Link
               to="/"
-              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
+              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 opacity-55 dark:text-white dark:[&.active]:bg-gray-700"
             >
               <LibraryBig />
-              <span className="ml-3">Resources</span>
+              <div className="flex flex-col">
+                <span className="ml-3">Resources</span>
+                <span className="ml-3 text-xs">Coming soon</span>
+              </div>
             </Link>
           </li>
           <li>
             <Link
               to="/"
-              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
+              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 opacity-55 dark:text-white dark:[&.active]:bg-gray-700"
             >
               <MessageCircleWarning />
-              <span className="ml-3">Reports</span>
+              <div className="flex flex-col">
+                <span className="ml-3">Reports</span>
+                <span className="ml-3 text-xs">Coming soon</span>
+              </div>
             </Link>
           </li>
         </ul>
@@ -106,7 +121,7 @@ const Drawer: React.FC = () => {
         <ul className="space-y-2 font-medium">
           <li>
             <Link
-              to="/"
+              to={import.meta.env.VITE_STRAPI_ADMIN_URL}
               className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
             >
               <Cog />
@@ -116,10 +131,13 @@ const Drawer: React.FC = () => {
           <li>
             <Link
               to="/"
-              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
+              className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 opacity-55 dark:text-white dark:[&.active]:bg-gray-700"
             >
               <HelpCircle />
-              <span className="ml-3">Help</span>
+              <div className="flex flex-col">
+                <span className="ml-3">Help</span>
+                <span className="ml-3 text-xs">Coming soon</span>
+              </div>
             </Link>
           </li>
         </ul>

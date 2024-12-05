@@ -27,7 +27,9 @@ export const DashboardLayout: React.FC = () => {
 
       <div className="w-[100%] pl-64">
         <div className="flex items-center justify-between px-8 py-4">
-          <h2 className="text-4xl font-semibold text-white">Strapi Learning</h2>
+          <h2 className="text-4xl font-semibold text-black dark:text-white">
+            Strapi Learning
+          </h2>
 
           <div className="flex items-center justify-end gap-4">
             <form onSubmit={handleSearch} className="relative">

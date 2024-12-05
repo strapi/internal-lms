@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CourseCards } from "@/components/CourseCards";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useSearch,
+  useNavigate,
+} from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import {
   fetchCategories,
@@ -9,12 +13,26 @@ import {
 } from "@/lib/queries/appQueries";
 
 export const Route = createFileRoute("/_dashboardLayout/courses/")({
+  meta: () => {
+    return [
+      {
+        title: `Courses`,
+      },
+      {
+        name: "description",
+        content: `Explore courses. Learn and grow with us!`,
+      },
+    ];
+  },
   component: () => <CoursesPage />,
 });
 
 const CoursesPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [showFavorites, setShowFavorites] = useState(false);
+  const { category }: { category: string } = useSearch({ strict: false });
+  const navigate = useNavigate();
+
+  const selectedCategory = category || null;
+  const [showFavorites, setShowFavorites] = React.useState(false);
 
   const {
     data: categories = [],
@@ -30,8 +48,8 @@ const CoursesPage: React.FC = () => {
     isLoading: isCoursesLoading,
     error: coursesError,
   } = useQuery({
-    queryKey: ["processedCourses"],
-    queryFn: fetchProcessedCourses,
+    queryKey: ["processedCourses", selectedCategory],
+    queryFn: () => fetchProcessedCourses(selectedCategory),
   });
 
   if (isCategoriesLoading || isCoursesLoading) {
@@ -50,11 +68,18 @@ const CoursesPage: React.FC = () => {
     if (showFavorites && !course.isFavourite) return false;
     if (selectedCategory) {
       return course.categories.some(
-        (category) => category.id === selectedCategory,
+        (category) => category.name === selectedCategory,
       );
     }
     return true;
   });
+
+  const handleCategoryClick = (categoryName: string | null) => {
+    navigate({
+      to: "/courses",
+      search: { category: categoryName || undefined },
+    });
+  };
 
   return (
     <div className="flex gap-4">
@@ -65,12 +90,12 @@ const CoursesPage: React.FC = () => {
           {categories.map((category) => (
             <li key={category.id}>
               <button
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => handleCategoryClick(category.name)}
                 className={cn(
                   "rounded-3xl p-2 px-4 text-left",
-                  selectedCategory === category.id
+                  selectedCategory === category.name
                     ? "strapi-brand text-white"
-                    : "bg-white text-black",
+                    : "bg-gray-200 text-black dark:bg-gray-700 dark:text-white",
                 )}
               >
                 <span className="font-semibold">{category.name}</span>
@@ -79,12 +104,12 @@ const CoursesPage: React.FC = () => {
           ))}
           <li>
             <button
-              onClick={() => setSelectedCategory(null)}
+              onClick={() => handleCategoryClick(null)}
               className={cn(
                 "rounded-3xl p-2 px-4 text-left",
                 selectedCategory === null
                   ? "strapi-brand text-white"
-                  : "bg-white text-black",
+                  : "bg-gray-200 text-black dark:bg-gray-700 dark:text-white",
               )}
             >
               <span className="font-semibold">Show All</span>
@@ -99,7 +124,7 @@ const CoursesPage: React.FC = () => {
               "w-full rounded-3xl p-2 px-4 text-left",
               showFavorites
                 ? "bg-yellow-500 text-white"
-                : "bg-white text-black",
+                : "bg-gray-200 text-black dark:bg-gray-700 dark:text-white",
             )}
           >
             {showFavorites ? "Show All Courses" : "Show Favorites"}
@@ -112,7 +137,7 @@ const CoursesPage: React.FC = () => {
         {filteredCourses.length ? (
           <CourseCards courses={filteredCourses} showProgress={true} />
         ) : (
-          <div className="flex flex-col items-center justify-center gap-6 rounded-lg border bg-white p-24 p-6 shadow-md dark:bg-gray-800">
+          <div className="flex flex-col items-center justify-center gap-6 rounded-lg border bg-white p-24 shadow-md dark:bg-gray-800">
             <div className="h-24 w-24">
               <img src="/strapi.svg" />
             </div>
