@@ -11,23 +11,23 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AuthImport } from './routes/auth'
+import { Route as LoginImport } from './routes/login'
 import { Route as DashboardLayoutImport } from './routes/_dashboardLayout'
-import { Route as CourseLayoutImport } from './routes/_courseLayout'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthIndexImport } from './routes/auth/index'
+import { Route as LoginIndexImport } from './routes/login/index'
+import { Route as DashboardLayoutSearchIndexImport } from './routes/_dashboardLayout/search/index'
 import { Route as DashboardLayoutDashboardIndexImport } from './routes/_dashboardLayout/dashboard/index'
 import { Route as DashboardLayoutCoursesIndexImport } from './routes/_dashboardLayout/courses/index'
+import { Route as DashboardLayoutCategoriesIndexImport } from './routes/_dashboardLayout/categories/index'
 import { Route as AuthCallbackProviderIdImport } from './routes/auth.callback.$providerId'
+import { Route as DashboardLayoutCoursesCourseSlugImport } from './routes/_dashboardLayout/courses/$courseSlug'
 import { Route as DashboardLayoutUserSettingsImport } from './routes/_dashboardLayout/_user/settings'
 import { Route as DashboardLayoutUserProfileImport } from './routes/_dashboardLayout/_user/profile'
-import { Route as CourseLayoutCourseCourseIDImport } from './routes/_courseLayout/course/$courseID'
-import { Route as CourseLayoutCourseCreateIndexImport } from './routes/_courseLayout/course/create/index'
 
 // Create/Update Routes
 
-const AuthRoute = AuthImport.update({
-  path: '/auth',
+const LoginRoute = LoginImport.update({
+  path: '/login',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -36,20 +36,22 @@ const DashboardLayoutRoute = DashboardLayoutImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CourseLayoutRoute = CourseLayoutImport.update({
-  id: '/_courseLayout',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthIndexRoute = AuthIndexImport.update({
+const LoginIndexRoute = LoginIndexImport.update({
   path: '/',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => LoginRoute,
 } as any)
+
+const DashboardLayoutSearchIndexRoute = DashboardLayoutSearchIndexImport.update(
+  {
+    path: '/search/',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any,
+)
 
 const DashboardLayoutDashboardIndexRoute =
   DashboardLayoutDashboardIndexImport.update({
@@ -63,10 +65,22 @@ const DashboardLayoutCoursesIndexRoute =
     getParentRoute: () => DashboardLayoutRoute,
   } as any)
 
+const DashboardLayoutCategoriesIndexRoute =
+  DashboardLayoutCategoriesIndexImport.update({
+    path: '/categories/',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
+
 const AuthCallbackProviderIdRoute = AuthCallbackProviderIdImport.update({
-  path: '/callback/$providerId',
-  getParentRoute: () => AuthRoute,
+  path: '/auth/callback/$providerId',
+  getParentRoute: () => rootRoute,
 } as any)
+
+const DashboardLayoutCoursesCourseSlugRoute =
+  DashboardLayoutCoursesCourseSlugImport.update({
+    path: '/courses/$courseSlug',
+    getParentRoute: () => DashboardLayoutRoute,
+  } as any)
 
 const DashboardLayoutUserSettingsRoute =
   DashboardLayoutUserSettingsImport.update({
@@ -81,19 +95,6 @@ const DashboardLayoutUserProfileRoute = DashboardLayoutUserProfileImport.update(
   } as any,
 )
 
-const CourseLayoutCourseCourseIDRoute = CourseLayoutCourseCourseIDImport.update(
-  {
-    path: '/course/$courseID',
-    getParentRoute: () => CourseLayoutRoute,
-  } as any,
-)
-
-const CourseLayoutCourseCreateIndexRoute =
-  CourseLayoutCourseCreateIndexImport.update({
-    path: '/course/create/',
-    getParentRoute: () => CourseLayoutRoute,
-  } as any)
-
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -105,13 +106,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/_courseLayout': {
-      id: '/_courseLayout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof CourseLayoutImport
-      parentRoute: typeof rootRoute
-    }
     '/_dashboardLayout': {
       id: '/_dashboardLayout'
       path: ''
@@ -119,26 +113,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLayoutImport
       parentRoute: typeof rootRoute
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    '/auth/': {
-      id: '/auth/'
+    '/login/': {
+      id: '/login/'
       path: '/'
-      fullPath: '/auth/'
-      preLoaderRoute: typeof AuthIndexImport
-      parentRoute: typeof AuthImport
-    }
-    '/_courseLayout/course/$courseID': {
-      id: '/_courseLayout/course/$courseID'
-      path: '/course/$courseID'
-      fullPath: '/course/$courseID'
-      preLoaderRoute: typeof CourseLayoutCourseCourseIDImport
-      parentRoute: typeof CourseLayoutImport
+      fullPath: '/login/'
+      preLoaderRoute: typeof LoginIndexImport
+      parentRoute: typeof LoginImport
     }
     '/_dashboardLayout/_user/profile': {
       id: '/_dashboardLayout/_user/profile'
@@ -154,12 +141,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLayoutUserSettingsImport
       parentRoute: typeof DashboardLayoutImport
     }
+    '/_dashboardLayout/courses/$courseSlug': {
+      id: '/_dashboardLayout/courses/$courseSlug'
+      path: '/courses/$courseSlug'
+      fullPath: '/courses/$courseSlug'
+      preLoaderRoute: typeof DashboardLayoutCoursesCourseSlugImport
+      parentRoute: typeof DashboardLayoutImport
+    }
     '/auth/callback/$providerId': {
       id: '/auth/callback/$providerId'
-      path: '/callback/$providerId'
+      path: '/auth/callback/$providerId'
       fullPath: '/auth/callback/$providerId'
       preLoaderRoute: typeof AuthCallbackProviderIdImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof rootRoute
+    }
+    '/_dashboardLayout/categories/': {
+      id: '/_dashboardLayout/categories/'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof DashboardLayoutCategoriesIndexImport
+      parentRoute: typeof DashboardLayoutImport
     }
     '/_dashboardLayout/courses/': {
       id: '/_dashboardLayout/courses/'
@@ -175,12 +176,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLayoutDashboardIndexImport
       parentRoute: typeof DashboardLayoutImport
     }
-    '/_courseLayout/course/create/': {
-      id: '/_courseLayout/course/create/'
-      path: '/course/create'
-      fullPath: '/course/create'
-      preLoaderRoute: typeof CourseLayoutCourseCreateIndexImport
-      parentRoute: typeof CourseLayoutImport
+    '/_dashboardLayout/search/': {
+      id: '/_dashboardLayout/search/'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof DashboardLayoutSearchIndexImport
+      parentRoute: typeof DashboardLayoutImport
     }
   }
 }
@@ -189,20 +190,17 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
-  CourseLayoutRoute: CourseLayoutRoute.addChildren({
-    CourseLayoutCourseCourseIDRoute,
-    CourseLayoutCourseCreateIndexRoute,
-  }),
   DashboardLayoutRoute: DashboardLayoutRoute.addChildren({
     DashboardLayoutUserProfileRoute,
     DashboardLayoutUserSettingsRoute,
+    DashboardLayoutCoursesCourseSlugRoute,
+    DashboardLayoutCategoriesIndexRoute,
     DashboardLayoutCoursesIndexRoute,
     DashboardLayoutDashboardIndexRoute,
+    DashboardLayoutSearchIndexRoute,
   }),
-  AuthRoute: AuthRoute.addChildren({
-    AuthIndexRoute,
-    AuthCallbackProviderIdRoute,
-  }),
+  LoginRoute: LoginRoute.addChildren({ LoginIndexRoute }),
+  AuthCallbackProviderIdRoute,
 })
 
 /* prettier-ignore-end */
@@ -214,44 +212,35 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/_courseLayout",
         "/_dashboardLayout",
-        "/auth"
+        "/login",
+        "/auth/callback/$providerId"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/_courseLayout": {
-      "filePath": "_courseLayout.tsx",
-      "children": [
-        "/_courseLayout/course/$courseID",
-        "/_courseLayout/course/create/"
-      ]
     },
     "/_dashboardLayout": {
       "filePath": "_dashboardLayout.tsx",
       "children": [
         "/_dashboardLayout/_user/profile",
         "/_dashboardLayout/_user/settings",
+        "/_dashboardLayout/courses/$courseSlug",
+        "/_dashboardLayout/categories/",
         "/_dashboardLayout/courses/",
-        "/_dashboardLayout/dashboard/"
+        "/_dashboardLayout/dashboard/",
+        "/_dashboardLayout/search/"
       ]
     },
-    "/auth": {
-      "filePath": "auth.tsx",
+    "/login": {
+      "filePath": "login.tsx",
       "children": [
-        "/auth/",
-        "/auth/callback/$providerId"
+        "/login/"
       ]
     },
-    "/auth/": {
-      "filePath": "auth/index.tsx",
-      "parent": "/auth"
-    },
-    "/_courseLayout/course/$courseID": {
-      "filePath": "_courseLayout/course/$courseID.tsx",
-      "parent": "/_courseLayout"
+    "/login/": {
+      "filePath": "login/index.tsx",
+      "parent": "/login"
     },
     "/_dashboardLayout/_user/profile": {
       "filePath": "_dashboardLayout/_user/profile.tsx",
@@ -261,9 +250,16 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_dashboardLayout/_user/settings.tsx",
       "parent": "/_dashboardLayout"
     },
+    "/_dashboardLayout/courses/$courseSlug": {
+      "filePath": "_dashboardLayout/courses/$courseSlug.tsx",
+      "parent": "/_dashboardLayout"
+    },
     "/auth/callback/$providerId": {
-      "filePath": "auth.callback.$providerId.tsx",
-      "parent": "/auth"
+      "filePath": "auth.callback.$providerId.tsx"
+    },
+    "/_dashboardLayout/categories/": {
+      "filePath": "_dashboardLayout/categories/index.tsx",
+      "parent": "/_dashboardLayout"
     },
     "/_dashboardLayout/courses/": {
       "filePath": "_dashboardLayout/courses/index.tsx",
@@ -273,9 +269,9 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_dashboardLayout/dashboard/index.tsx",
       "parent": "/_dashboardLayout"
     },
-    "/_courseLayout/course/create/": {
-      "filePath": "_courseLayout/course/create/index.tsx",
-      "parent": "/_courseLayout"
+    "/_dashboardLayout/search/": {
+      "filePath": "_dashboardLayout/search/index.tsx",
+      "parent": "/_dashboardLayout"
     }
   }
 }
