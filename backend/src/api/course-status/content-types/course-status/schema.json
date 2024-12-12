@@ -4,7 +4,7 @@
   "info": {
     "singularName": "course-status",
     "pluralName": "course-statuses",
-    "displayName": "CourseStatus",
+    "displayName": "Course Status",
     "description": ""
   },
   "options": {
