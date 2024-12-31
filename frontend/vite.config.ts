@@ -20,8 +20,8 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        "@interfaces": path.resolve(__dirname, "./types")
+        "@interfaces": path.resolve(__dirname, "./types"),
       },
     },
-  },
+  };
 });
