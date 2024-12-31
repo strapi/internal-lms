@@ -13,7 +13,11 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
   ({ courses, showProgress }) => {
     const queryClient = useQueryClient();
 
-    const toggleFavouriteMutation = useMutation({
+    const {
+      mutate,
+      status, // Use this to track the mutation status
+      variables,
+    } = useMutation({
       mutationFn: async ({
         courseDocumentId,
         isFavourite,
@@ -31,19 +35,21 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
         queryClient.invalidateQueries({ queryKey: ["processedCourses"] });
       },
     });
+    
+    const isLoading = status === "idle" || "pending";
 
     const handleFavouriteClick = (
       courseDocumentId: string,
       isCurrentlyFavourite: boolean,
-      courseTitle: string,
+      courseTitle: string
     ) => {
       toast(
         !isCurrentlyFavourite
           ? `${courseTitle} added to favourites`
-          : `${courseTitle} removed from favourites`,
+          : `${courseTitle} removed from favourites`
       );
 
-      toggleFavouriteMutation.mutate({
+      mutate({
         courseDocumentId,
         isFavourite: !isCurrentlyFavourite,
       });
@@ -56,7 +62,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
           const totalModules =
             course.sections?.reduce(
               (count, section) => count + (section.modules?.length || 0),
-              0,
+              0
             ) || 0;
 
           const progress = course.progress || 0;
@@ -74,15 +80,16 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
           return (
             <Card key={course.id} className="rounded-lg shadow-lg">
               <Link to={`/courses/${course.slug}`} className="relative block">
-                {course.categories.length && (
+                {course.categories.length > 0 && (
                   <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                    {course.categories.map((category) => {
-                      return (
-                        <p key={category.id} className="strapi-brand rounded-2xl p-1 px-3 text-sm font-semibold text-white">
-                          {category.name}
-                        </p>
-                      );
-                    })}
+                    {course.categories.map((category) => (
+                      <p
+                        key={category.id}
+                        className="strapi-brand rounded-2xl p-1 px-3 text-sm font-semibold text-white"
+                      >
+                        {category.name}
+                      </p>
+                    ))}
                   </div>
                 )}
                 {course.thumbnail && (
@@ -142,7 +149,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                     handleFavouriteClick(
                       course.documentId,
                       !!course.isFavourite,
-                      course.title,
+                      course.title
                     )
                   }
                   className="focus:outline-none"
@@ -152,9 +159,8 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                       : "Add to favourites"
                   }
                 >
-                  {toggleFavouriteMutation.isLoading &&
-                  toggleFavouriteMutation.variables?.courseDocumentId ===
-                    course.documentId ? (
+                  {isLoading &&
+                  variables?.courseDocumentId === course.documentId ? (
                     <div className="spinner">Loading...</div>
                   ) : course.isFavourite ? (
                     <Star color="yellow" size={24} />
@@ -163,8 +169,8 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                   )}
                 </button>
                 <p className="mt-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
-                  {totalSections} {totalSections === 1 ? "Section" : "Sections"}{" "}
-                  | {totalModules} {totalModules === 1 ? "Module" : "Modules"}
+                  {totalSections} {totalSections === 1 ? "Section" : "Sections"} |
+                  {totalModules} {totalModules === 1 ? "Module" : "Modules"}
                 </p>
               </div>
             </Card>
@@ -172,5 +178,5 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
         })}
       </div>
     );
-  },
+  }
 );

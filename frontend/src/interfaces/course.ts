@@ -20,6 +20,7 @@ export interface Module extends BaseEntity {
   title: string;
   description: string;
   media?: Media;
+  completed?: boolean;
 }
 
 // Section
