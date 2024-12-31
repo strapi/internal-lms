@@ -12,17 +12,22 @@ export const Route = createFileRoute("/_dashboardLayout/dashboard/")({
 });
 
 function Dashboard() {
+  const categoryName = null; // Change this dynamically if needed
+
   // Fetch processed courses with progress
   const {
     data: processedCourses = [],
     isLoading: isCoursesLoading,
     error: coursesError,
   } = useQuery({
-    queryKey: ["processedCourses"],
-    queryFn: fetchProcessedCourses,
+    queryKey: ["processedCourses", categoryName], // Include categoryName
+    queryFn: ({ queryKey }) => {
+      const [, categoryName] = queryKey; // Extract categoryName
+      return fetchProcessedCourses(categoryName);
+    },
   });
 
-  // Fetch new courses
+  // Fetch new courses (unchanged)
   const {
     data: newCourses = [],
     isLoading: isNewCoursesLoading,
