@@ -6,9 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import { Card } from "./ui/card";
 import { Link } from "@tanstack/react-router";
-import { getStrapiImage } from "@/utils/getStrapiImage";
-
-const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
+import { getStrapiMedia, STRAPI_URL } from "@/lib/utils";
 
 interface GalleryCardsProps {
   galleryItems: Pick<
@@ -35,7 +33,7 @@ export const GalleryCards: React.FC<GalleryCardsProps> = ({ galleryItems }) => {
             0,
           ) || 0;
 
-        const image = getStrapiImage(IMAGE_URL, item.thumbnail?.url || "");
+        const image = getStrapiMedia(STRAPI_URL, item.thumbnail?.url || "");
 
         return (
           <SwiperSlide key={item.id} className="flex min-h-max justify-center">

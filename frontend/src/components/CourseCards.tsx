@@ -6,9 +6,7 @@ import { createOrUpdateCourseStatus } from "@/lib/queries/appQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Check, Play, Star, StarOff } from "lucide-react";
-import { getStrapiImage } from "@/utils/getStrapiImage";
-
-const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
+import { getStrapiMedia, STRAPI_URL } from "@/lib/utils";
 
 export const CourseCards: React.FC<CourseCardsProps> = React.memo(
   ({ courses, showProgress }) => {
@@ -78,7 +76,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
             buttonLabel = "Completed";
           }
 
-          const image = getStrapiImage(IMAGE_URL, course.thumbnail?.url || "");
+          const image = getStrapiMedia(STRAPI_URL, course.thumbnail?.url || "");
 
           return (
             <Card key={course.id} className="rounded-lg shadow-lg">
