@@ -31,12 +31,14 @@ export const PROVIDERS = [
  * @param {string | null} url - The media URL.
  * @returns {string | null} The full media URL or null.
  */
-export const getStrapiMedia = (url: string | null) => {
-  if (url === null) return null;
-  if (url.startsWith("data:")) return url;
-  if (url.startsWith("http") || url.startsWith("//")) return url;
-
-  return `${STRAPI_URL}${url}`;
+export const getStrapiMedia = (
+  serverURL: string | null,
+  imageURL: string | null,
+) => {
+  if (imageURL == null) return null;
+  if (imageURL.startsWith("data:")) return imageURL;
+  if (imageURL.startsWith("http") || imageURL.startsWith("//")) return imageURL;
+  return serverURL + imageURL;
 };
 
 // Utility to format username (e.g., "alex.bennett" to "Alex Bennett")

@@ -1,7 +1,7 @@
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "./ui/button";
 import strapiLogo from "../assets/strapi-logo.svg";
-import { STRAPI_URL, PROVIDERS } from "../lib/utils";
+import { STRAPI_URL, PROVIDERS } from "@/lib/utils";
 
 export default function Login() {
   return (

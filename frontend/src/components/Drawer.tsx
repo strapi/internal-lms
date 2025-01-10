@@ -13,6 +13,7 @@ import {
   MessageCircleWarning,
   Network,
 } from "lucide-react";
+import { STRAPI_URL } from "@/lib/utils";
 
 const Drawer: React.FC = () => {
   return (
@@ -120,13 +121,14 @@ const Drawer: React.FC = () => {
       <div className="mt-auto py-4">
         <ul className="space-y-2 font-medium">
           <li>
-            <Link
-              to={import.meta.env.VITE_STRAPI_ADMIN_URL}
+            <a
+              href={STRAPI_URL + "/admin"}
+              target={"_blank"}
               className="group flex items-center rounded-l-3xl p-2 pl-4 text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:[&.active]:bg-gray-700"
             >
               <Cog />
               <span className="ml-3">Admin</span>
-            </Link>
+            </a>
           </li>
           <li>
             <Link
