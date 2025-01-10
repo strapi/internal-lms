@@ -6,6 +6,7 @@ import { createOrUpdateCourseStatus } from "@/lib/queries/appQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Check, Play, Star, StarOff } from "lucide-react";
+import { getStrapiImage } from "@/utils/getStrapiImage";
 
 const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
 
@@ -35,18 +36,18 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
         queryClient.invalidateQueries({ queryKey: ["processedCourses"] });
       },
     });
-    
+
     const isLoading = status === "idle" || "pending";
 
     const handleFavouriteClick = (
       courseDocumentId: string,
       isCurrentlyFavourite: boolean,
-      courseTitle: string
+      courseTitle: string,
     ) => {
       toast(
         !isCurrentlyFavourite
           ? `${courseTitle} added to favourites`
-          : `${courseTitle} removed from favourites`
+          : `${courseTitle} removed from favourites`,
       );
 
       mutate({
@@ -62,7 +63,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
           const totalModules =
             course.sections?.reduce(
               (count, section) => count + (section.modules?.length || 0),
-              0
+              0,
             ) || 0;
 
           const progress = course.progress || 0;
@@ -76,6 +77,8 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
           } else if (progress === 100) {
             buttonLabel = "Completed";
           }
+
+          const image = getStrapiImage(IMAGE_URL, course.thumbnail?.url || "");
 
           return (
             <Card key={course.id} className="rounded-lg shadow-lg">
@@ -94,7 +97,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                 )}
                 {course.thumbnail && (
                   <img
-                    src={`${IMAGE_URL}/${course.thumbnail.url}`}
+                    src={image || undefined}
                     alt={`${course.title} Thumbnail`}
                     width={600}
                     height={400}
@@ -122,7 +125,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                   )}
 
                   {showProgress && (
-                    <div className="flex justify-center mt-4">
+                    <div className="mt-4 flex justify-center">
                       {buttonLabel && (
                         <>
                           {progress < 100 ? (
@@ -149,7 +152,7 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                     handleFavouriteClick(
                       course.documentId,
                       !!course.isFavourite,
-                      course.title
+                      course.title,
                     )
                   }
                   className="focus:outline-none"
@@ -169,8 +172,8 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
                   )}
                 </button>
                 <p className="mt-2 text-xs font-semibold text-gray-600 dark:text-gray-400">
-                  {totalSections} {totalSections === 1 ? "Section" : "Sections"} |
-                  {totalModules} {totalModules === 1 ? "Module" : "Modules"}
+                  {totalSections} {totalSections === 1 ? "Section" : "Sections"}{" "}
+                  |{totalModules} {totalModules === 1 ? "Module" : "Modules"}
                 </p>
               </div>
             </Card>
@@ -178,5 +181,5 @@ export const CourseCards: React.FC<CourseCardsProps> = React.memo(
         })}
       </div>
     );
-  }
+  },
 );
