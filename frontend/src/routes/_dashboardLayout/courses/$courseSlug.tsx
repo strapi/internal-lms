@@ -21,9 +21,7 @@ import { Course, Module, Section } from "@/interfaces/course";
 import { User } from "@/interfaces/auth";
 import { ArrowLeft, Star, StarOff } from "lucide-react";
 import { CourseCards } from "@/components/CourseCards";
-import { getStrapiImage } from "@/utils/getStrapiImage";
-
-const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
+import { getStrapiMedia, STRAPI_URL } from "@/lib/utils";
 
 const SingleCourse: React.FC = () => {
   const { courseSlug } = useParams({
@@ -253,7 +251,7 @@ const SingleCourse: React.FC = () => {
     ?.flatMap((section) => section.modules)
     .find((module) => module.documentId === activeModuleDocumentId);
 
-  const poster = getStrapiImage(IMAGE_URL, course.thumbnail?.url || "");
+  const poster = getStrapiMedia(STRAPI_URL, course.thumbnail?.url || "");
 
   const isFavourite = userData?.courseStatuses?.find(
     (status) => status.course.documentId === course.documentId,
