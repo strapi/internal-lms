@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import { Card } from "./ui/card";
 import { Link } from "@tanstack/react-router";
+import { getStrapiImage } from "@/utils/getStrapiImage";
 
 const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
 
@@ -34,6 +35,8 @@ export const GalleryCards: React.FC<GalleryCardsProps> = ({ galleryItems }) => {
             0,
           ) || 0;
 
+        const image = getStrapiImage(IMAGE_URL, item.thumbnail?.url || "");
+
         return (
           <SwiperSlide key={item.id} className="flex min-h-max justify-center">
             <Link to={`/courses/${item.slug}`} className="block w-full">
@@ -41,7 +44,7 @@ export const GalleryCards: React.FC<GalleryCardsProps> = ({ galleryItems }) => {
                 {/* Image Section */}
                 {item.thumbnail ? (
                   <img
-                    src={`${IMAGE_URL}/${item.thumbnail.url}`}
+                    src={image || undefined}
                     alt={`${item.title} Thumbnail`}
                     className="h-48 w-full rounded-lg object-cover"
                   />
@@ -65,7 +68,7 @@ export const GalleryCards: React.FC<GalleryCardsProps> = ({ galleryItems }) => {
                   </div>
 
                   {/* Sections/Modules Info */}
-                  <div className="pt-4 mt-auto text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  <div className="mt-auto pt-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
                     {totalSections}{" "}
                     {totalSections === 1 ? "Section" : "Sections"} |{" "}
                     {totalModules} {totalModules === 1 ? "Module" : "Modules"}
