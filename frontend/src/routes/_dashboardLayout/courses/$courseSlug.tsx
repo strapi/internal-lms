@@ -21,6 +21,7 @@ import { Course, Module, Section } from "@/interfaces/course";
 import { User } from "@/interfaces/auth";
 import { ArrowLeft, Star, StarOff } from "lucide-react";
 import { CourseCards } from "@/components/CourseCards";
+import { getStrapiImage } from "@/utils/getStrapiImage";
 
 const IMAGE_URL = import.meta.env.VITE_STRAPI_IMAGE_URL;
 
@@ -68,7 +69,9 @@ const SingleCourse: React.FC = () => {
   const [activeModuleDocumentId, setActiveModuleDocumentId] = useState<
     string | null
   >(null);
-  const [moduleProgress, setModuleProgress] = useState<Record<string, number>>({});
+  const [moduleProgress, setModuleProgress] = useState<Record<string, number>>(
+    {},
+  );
 
   const { mutate: updateCourseStatus } = useMutation({
     mutationFn: createOrUpdateCourseStatus,
@@ -102,11 +105,11 @@ const SingleCourse: React.FC = () => {
   useEffect(() => {
     if (course && userData) {
       const courseStatus = userData.courseStatuses.find(
-        (status) => status.course?.documentId === course.documentId
+        (status) => status.course?.documentId === course.documentId,
       );
-  
+
       if (!courseStatus) return;
-  
+
       const progressMap: Record<string, number> = courseStatus.sections.reduce(
         (acc, sectionStatus) => ({
           ...acc,
@@ -114,33 +117,34 @@ const SingleCourse: React.FC = () => {
             sectionStatus.modules.map((moduleStatus) => [
               moduleStatus.module.documentId,
               moduleStatus.progress,
-            ])
+            ]),
           ),
         }),
-        {}
+        {},
       );
-  
+
       setModuleProgress(progressMap);
-  
+
       // Ensure active states are only set if not already
       if (!activeModuleDocumentId && !activeSectionDocumentId) {
         const firstIncompleteModule = course.sections
           .flatMap((section) => section.modules)
           .find((module) => (progressMap[module.documentId] || 0) < 100);
-  
+
         if (firstIncompleteModule) {
           setActiveModuleDocumentId(firstIncompleteModule.documentId);
           setActiveSectionDocumentId(
             course.sections.find((section) =>
               section.modules.some(
-                (module) => module.documentId === firstIncompleteModule.documentId
-              )
-            )?.documentId || null
+                (module) =>
+                  module.documentId === firstIncompleteModule.documentId,
+              ),
+            )?.documentId || null,
           );
         }
       }
     }
-  }, [course, userData, activeModuleDocumentId, activeSectionDocumentId]);  
+  }, [course, userData, activeModuleDocumentId, activeSectionDocumentId]);
 
   const handleTimeUpdate = () => {
     const player = playerRef.current;
@@ -249,7 +253,7 @@ const SingleCourse: React.FC = () => {
     ?.flatMap((section) => section.modules)
     .find((module) => module.documentId === activeModuleDocumentId);
 
-  const poster = IMAGE_URL + (course.thumbnail?.url || "");
+  const poster = getStrapiImage(IMAGE_URL, course.thumbnail?.url || "");
 
   const isFavourite = userData?.courseStatuses?.find(
     (status) => status.course.documentId === course.documentId,
@@ -268,7 +272,7 @@ const SingleCourse: React.FC = () => {
                   video_id: `mux-video-${activeModule.media.playback_id}`,
                   video_title: activeModule.title,
                 }}
-                poster={poster}
+                poster={poster || undefined}
                 className="h-full w-full"
                 onTimeUpdate={handleTimeUpdate}
                 onEnded={handleVideoEnd}
