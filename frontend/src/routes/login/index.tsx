@@ -1,9 +1,10 @@
 import Login from "@/components/Login";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/auth/")({
+export const Route = createFileRoute("/login/")({
   component: Login,
   beforeLoad: () => {
-    localStorage.clear(); // remove all auth data
+    // Clear authentication state before loading login page
+    localStorage.clear();
   },
 });

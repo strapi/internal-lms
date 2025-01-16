@@ -1,11 +1,11 @@
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "./ui/button";
 import strapiLogo from "../assets/strapi-logo.svg";
-import { STRAPI_URL, PROVIDERS } from "../lib/utils";
+import { STRAPI_URL, PROVIDERS } from "@/lib/utils";
 
 export default function Login() {
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-100 dark:bg-gray-950">
+    <div className="flex h-[calc(100vh-56px)] w-full flex-col items-center justify-center bg-gray-100 dark:bg-gray-950">
       <div className="mb-8 flex flex-col items-center">
         <h1 className="text-3xl font-bold">Welcome to Strapi LMS!</h1>
         <p className="text-gray-500 dark:text-gray-400">

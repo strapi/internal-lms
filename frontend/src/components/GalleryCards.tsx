@@ -1,14 +1,18 @@
-import { Course } from '@/interfaces/course';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import { Card } from './ui/card';
-import { Link } from '@tanstack/react-router';
+import { Course } from "@/interfaces/course";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import { Card } from "./ui/card";
+import { Link } from "@tanstack/react-router";
+import { getStrapiMedia, STRAPI_URL } from "@/lib/utils";
 
 interface GalleryCardsProps {
-  galleryItems: Partial<Course>[];
+  galleryItems: Pick<
+    Course,
+    "id" | "slug" | "title" | "synopsis" | "thumbnail" | "sections"
+  >[];
 }
 
 export const GalleryCards: React.FC<GalleryCardsProps> = ({ galleryItems }) => {
@@ -21,23 +25,58 @@ export const GalleryCards: React.FC<GalleryCardsProps> = ({ galleryItems }) => {
       pagination={{ clickable: true }}
       className="w-full"
     >
-      {galleryItems.map((item) => (
-        <SwiperSlide key={item.id} className="flex justify-center min-h-max">
-          <Link to={`/course/${item.id}`}>
-            <Card className="p-4 rounded-lg aspect-square shadow-lg flex flex-col">
-              <img
-                src={item.photo}
-                alt="Gallery Image"
-                className="aspect-auto h-1/2 object-cover rounded-t-lg"
-              />
-              <div className="flex flex-col mt-4 overflow-auto h-1/2">
-                <h4 className="text-lg font-bold flex-shrink-0 truncate">{item.title}</h4>
-                <p className="text-gray-500 mt-1 break-words">{item.subtitle}</p>
-              </div>
-            </Card>
-          </Link>
-        </SwiperSlide>
-      ))}
+      {galleryItems.map((item) => {
+        const totalSections = item.sections?.length || 0;
+        const totalModules =
+          item.sections?.reduce(
+            (count, section) => count + (section.modules?.length || 0),
+            0,
+          ) || 0;
+
+        const image = getStrapiMedia(STRAPI_URL, item.thumbnail?.url || "");
+
+        return (
+          <SwiperSlide key={item.id} className="flex min-h-max justify-center">
+            <Link to={`/courses/${item.slug}`} className="block w-full">
+              <Card className="flex h-full flex-col rounded-lg p-4 shadow-lg">
+                {/* Image Section */}
+                {item.thumbnail ? (
+                  <img
+                    src={image || undefined}
+                    alt={`${item.title} Thumbnail`}
+                    className="h-48 w-full rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="flex h-48 items-center justify-center rounded-t-lg bg-gray-200">
+                    <p className="text-gray-500">No Image</p>
+                  </div>
+                )}
+
+                {/* Content Section */}
+                <div className="flex flex-1 flex-col justify-between pt-4">
+                  <div>
+                    <h3 className="truncate text-lg font-bold">
+                      {item.title || "Untitled Course"}
+                    </h3>
+                    {item.synopsis && (
+                      <p className="mt-2 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                        {item.synopsis}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Sections/Modules Info */}
+                  <div className="mt-auto pt-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    {totalSections}{" "}
+                    {totalSections === 1 ? "Section" : "Sections"} |{" "}
+                    {totalModules} {totalModules === 1 ? "Module" : "Modules"}
+                  </div>
+                </div>
+              </Card>
+            </Link>
+          </SwiperSlide>
+        );
+      })}
     </Swiper>
   );
 };

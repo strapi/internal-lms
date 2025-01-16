@@ -1,5 +1,5 @@
 import { useTheme } from "@/hooks/useTheme";
-import { FaMoon, FaSun } from "react-icons/fa";
+import { Moon, Sun } from "lucide-react";
 
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
@@ -7,9 +7,9 @@ const ThemeToggle = () => {
   return (
     <button title="Toggle Theme" onClick={toggleTheme}>
       {theme === "light" ? (
-        <FaMoon className="h-6 w-6" />
+        <Moon className="h-6 w-6" />
       ) : (
-        <FaSun className="h-6 w-6" />
+        <Sun className="h-6 w-6" />
       )}
     </button>
   );

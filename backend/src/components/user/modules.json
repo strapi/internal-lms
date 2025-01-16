@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_user_modules",
+  "info": {
+    "displayName": "modules",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "progress": {
+      "type": "integer"
+    },
+    "module": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::module.module"
+    }
+  }
+}
