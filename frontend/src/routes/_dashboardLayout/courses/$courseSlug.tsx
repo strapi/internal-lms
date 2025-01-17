@@ -106,28 +106,38 @@ const SingleCourse: React.FC = () => {
         (status) => status.course?.documentId === course.documentId,
       );
 
-      if (!courseStatus) return;
+      let progressMap: Record<string, number> = {};
 
-      const progressMap: Record<string, number> = courseStatus.sections.reduce(
-        (acc, sectionStatus) => ({
-          ...acc,
-          ...Object.fromEntries(
-            sectionStatus.modules.map((moduleStatus) => [
-              moduleStatus.module.documentId,
-              moduleStatus.progress,
-            ]),
-          ),
-        }),
-        {},
-      );
+      if (courseStatus) {
+        progressMap = courseStatus.sections.reduce(
+          (acc, sectionStatus) => ({
+            ...acc,
+            ...Object.fromEntries(
+              sectionStatus.modules.map((moduleStatus) => [
+                moduleStatus.module.documentId,
+                moduleStatus.progress,
+              ]),
+            ),
+          }),
+          {},
+        );
+      }
 
       setModuleProgress(progressMap);
 
-      // Ensure active states are only set if not already
       if (!activeModuleDocumentId && !activeSectionDocumentId) {
-        const firstIncompleteModule = course.sections
-          .flatMap((section) => section.modules)
-          .find((module) => (progressMap[module.documentId] || 0) < 100);
+        let firstIncompleteModule: Module | undefined;
+
+        if (courseStatus) {
+          firstIncompleteModule = course.sections
+            .flatMap((section) => section.modules)
+            .find((module) => (progressMap[module.documentId] || 0) < 100);
+        }
+
+        // If no progress or all modules are complete, select the first module
+        if (!firstIncompleteModule) {
+          firstIncompleteModule = course.sections[0]?.modules[0];
+        }
 
         if (firstIncompleteModule) {
           setActiveModuleDocumentId(firstIncompleteModule.documentId);
@@ -135,7 +145,7 @@ const SingleCourse: React.FC = () => {
             course.sections.find((section) =>
               section.modules.some(
                 (module) =>
-                  module.documentId === firstIncompleteModule.documentId,
+                  module.documentId === firstIncompleteModule?.documentId,
               ),
             )?.documentId || null,
           );
@@ -339,7 +349,7 @@ const SingleCourse: React.FC = () => {
           className="mb-6 flex items-center justify-center gap-2 rounded-3xl border border-slate-400 p-2 px-4 text-left text-black hover:bg-white dark:text-white dark:hover:text-black"
         >
           <ArrowLeft />
-          <span className="text-md font-semibol">Back to courses</span>
+          <span className="text-md font-semibold">Back to courses</span>
         </Link>
         <ul className="mb-6 flex flex-wrap gap-2">
           {course.categories.map((category) => (
